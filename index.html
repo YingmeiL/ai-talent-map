@@ -99,6 +99,40 @@ tr:nth-child(even){background:#fafcfd}
 @media(max-width:480px){
   .stats{grid-template-columns:repeat(2,1fr)}
 }
+
+/* === Analytics Dashboard === */
+.ana-toggle{text-align:center;margin:.8rem 0}
+.ana-btn{padding:.5rem 1.5rem;border:1px solid var(--accent);border-radius:20px;background:transparent;color:var(--accent);font-size:.85rem;cursor:pointer;transition:all .3s;font-weight:600}
+.ana-btn:hover,.ana-btn.on{background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.2)}
+.ana{display:none;margin:1rem 0;animation:fUp .5s ease-out}
+.ana.show{display:block}
+.ana-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+@media(max-width:768px){.ana-grid{grid-template-columns:1fr}}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.2rem;box-shadow:0 2px 8px rgba(0,0,0,.03);transition:transform .3s,box-shadow .3s}
+.chart-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(37,99,235,.06)}
+.chart-title{font-size:.85rem;font-weight:700;color:var(--text);margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem}
+.chart-title .ic{font-size:1rem}
+.hbar{margin-bottom:.45rem;display:flex;align-items:center;gap:.5rem}
+.hbar-label{flex:0 0 140px;text-align:right;font-size:.72rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hbar-track{flex:1;height:20px;background:#f1f5f9;border-radius:10px;overflow:hidden;position:relative}
+.hbar-fill{height:100%;border-radius:10px;transition:width 1s cubic-bezier(.25,.8,.25,1);position:relative}
+.hbar-fill::after{content:attr(data-v);position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:.65rem;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.15)}
+.hbar-val{flex:0 0 35px;font-size:.72rem;font-weight:600;color:var(--text)}
+
+/* region donut */
+.donut-wrap{display:flex;align-items:center;gap:1.5rem;justify-content:center;flex-wrap:wrap}
+.donut-svg{width:160px;height:160px;transform:rotate(-90deg)}
+.donut-svg circle{fill:none;stroke-width:28;transition:stroke-dasharray 1s ease}
+.donut-legend{display:flex;flex-direction:column;gap:.4rem}
+.legend-item{display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--text)}
+.legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+/* h-index tiers */
+.tier-grid{display:flex;gap:.5rem;align-items:flex-end;justify-content:center;height:120px;padding-top:.5rem}
+.tier-col{display:flex;flex-direction:column;align-items:center;gap:.3rem;flex:1}
+.tier-bar{width:100%;border-radius:6px 6px 0 0;transition:height 1s cubic-bezier(.25,.8,.25,1);min-width:30px}
+.tier-num{font-size:.75rem;font-weight:700;color:var(--text)}
+.tier-label{font-size:.62rem;color:var(--muted);text-align:center;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -110,6 +144,16 @@ tr:nth-child(even){background:#fafcfd}
     <p><span class="dot"></span>Top 1000 Researchers &bull; 14 Conferences &bull; 2023-2026</p>
   </div>
   <div class="stats" id="stats"></div>
+
+  <div class="ana-toggle"><button class="ana-btn" onclick="toggleAna(this)">Analytics Dashboard</button></div>
+  <div class="ana" id="ana">
+    <div class="ana-grid">
+      <div class="chart-card"><div class="chart-title"><span class="ic">📊</span> Research Direction</div><div id="ch-dir"></div></div>
+      <div class="chart-card"><div class="chart-title"><span class="ic">🏫</span> Top 15 Schools</div><div id="ch-school"></div></div>
+      <div class="chart-card"><div class="chart-title"><span class="ic">🌏</span> Regional Distribution</div><div id="ch-region"></div></div>
+      <div class="chart-card"><div class="chart-title"><span class="ic">📈</span> H-Index Tiers</div><div id="ch-hindex"></div></div>
+    </div>
+  </div>
   <div class="bar"><input type="text" class="sx" id="q" placeholder="Search name, affiliation, venue..."></div>
   <div class="bar" id="flt"></div>
   <div class="sbar"><span>Sort:</span><button class="st on" data-s="h">H-Index</button><button class="st" data-s="c">Citations</button><button class="st" data-s="gs">GitHub Stars</button><button class="st" data-s="p">Papers</button></div>
@@ -227,6 +271,105 @@ function initPts(){
     }
     requestAnimationFrame(loop);
   })();
+}
+
+
+function toggleAna(btn){
+  var el=document.getElementById('ana');
+  var show=!el.classList.contains('show');
+  el.classList.toggle('show');
+  btn.classList.toggle('on');
+  if(show&&!el.dataset.rendered){
+    el.dataset.rendered='1';
+    renderCharts();
+  }
+}
+
+function renderCharts(){
+  renderDirChart();
+  renderSchoolChart();
+  renderRegionChart();
+  renderHIndexChart();
+}
+
+function renderDirChart(){
+  var dc={};
+  D.forEach(function(d){d.d.forEach(function(x){dc[x]=(dc[x]||0)+1})});
+  var sorted=Object.entries(dc).sort(function(a,b){return b[1]-a[1]});
+  var max=sorted[0][1];
+  var colors=['#7c3aed','#0891b2','#2563eb','#db2777','#059669','#d97706','#dc2626','#92400e','#64748b'];
+  var h=sorted.map(function(x,i){
+    var pct=Math.round(x[1]/max*100);
+    var c=colors[i%colors.length];
+    return '<div class="hbar"><span class="hbar-label">'+(DIR_FULL[x[0]]||x[0])+'</span><div class="hbar-track"><div class="hbar-fill" style="width:'+pct+'%;background:'+c+'" data-v="'+x[1]+'"></div></div><span class="hbar-val">'+x[1]+'</span></div>';
+  }).join('');
+  document.getElementById('ch-dir').innerHTML=h;
+}
+
+function renderSchoolChart(){
+  var sc={};
+  D.forEach(function(d){if(d.sc){sc[d.sc]=(sc[d.sc]||0)+1}});
+  var sorted=Object.entries(sc).sort(function(a,b){return b[1]-a[1]}).slice(0,15);
+  var max=sorted[0][1];
+  var h=sorted.map(function(x,i){
+    var pct=Math.round(x[1]/max*100);
+    var hue=200+i*10;
+    return '<div class="hbar"><span class="hbar-label" title="'+x[0]+'">'+x[0]+'</span><div class="hbar-track"><div class="hbar-fill" style="width:'+pct+'%;background:hsl('+hue+',65%,50%)" data-v="'+x[1]+'"></div></div><span class="hbar-val">'+x[1]+'</span></div>';
+  }).join('');
+  document.getElementById('ch-school').innerHTML=h;
+}
+
+function renderRegionChart(){
+  var cn_kw=['Tsinghua','Peking','Zhejiang','Shanghai Jiao','Fudan','USTC','Harbin','Wuhan','Nanjing','Huazhong','Shandong','Central South','Beijing','Northwestern Poly','Sun Yat','Southeast','East China','Sichuan','Tongji','Renmin','Nankai','Chinese Academy','Beihang','Xi\'an Jiao','Jilin','Xiamen','Dalian','UESTC','South China','Westlake','ShanghaiTech','Southern University of Science','National University of Defense','University of Science and Technology of China'];
+  var us_kw=['Stanford','MIT','Carnegie','Berkeley','Princeton','Harvard','Cornell','Columbia','UCLA','UIUC','Illinois','Washington','Georgia Tech','NYU','Penn','Yale','Rice','Duke','Northwestern','Brown','Rutgers','Texas','Michigan','Ohio','Arizona','UC ','Maryland','Minnesota','Purdue','Virginia','Wisconsin','Chicago','Johns Hopkins','Southern California'];
+  var hk_kw=['Hong Kong','HKUST'];
+  var sg_kw=['Singapore','Nanyang'];
+  var eu_kw=['Oxford','Cambridge','ETH','EPFL','Max Planck','Imperial','Edinburgh','UCL','Munich','Aachen','London','Delft','Eindhoven','Surrey'];
+
+  function match(s,kws){return kws.some(function(k){return s.indexOf(k)>=0})}
+  var cn=0,us=0,hk=0,sg=0,eu=0,ot=0;
+  D.forEach(function(d){
+    var s=d.sc||'';
+    if(!s)return;
+    if(match(s,cn_kw))cn++;
+    else if(match(s,us_kw))us++;
+    else if(match(s,hk_kw))hk++;
+    else if(match(s,sg_kw))sg++;
+    else if(match(s,eu_kw))eu++;
+    else ot++;
+  });
+  var regions=[{n:'China Mainland',v:cn,c:'#dc2626'},{n:'United States',v:us,c:'#2563eb'},{n:'Hong Kong',v:hk,c:'#7c3aed'},{n:'Singapore',v:sg,c:'#059669'},{n:'Europe',v:eu,c:'#d97706'},{n:'Other',v:ot,c:'#64748b'}];
+  var total=regions.reduce(function(s,r){return s+r.v},0);
+
+  // donut chart
+  var r=66,circ=2*Math.PI*r;
+  var offset=0;
+  var circles=regions.map(function(rg){
+    var pct=rg.v/total;
+    var dash=pct*circ;
+    var gap=circ-dash;
+    var svg='<circle cx="80" cy="80" r="'+r+'" stroke="'+rg.c+'" stroke-dasharray="'+dash.toFixed(1)+' '+gap.toFixed(1)+'" stroke-dashoffset="-'+offset.toFixed(1)+'" />';
+    offset+=dash;
+    return svg;
+  }).join('');
+
+  var legend=regions.map(function(rg){
+    var pct=Math.round(rg.v/total*100);
+    return '<div class="legend-item"><span class="legend-dot" style="background:'+rg.c+'"></span>'+rg.n+' <b>'+rg.v+'</b> ('+pct+'%)</div>';
+  }).join('');
+
+  document.getElementById('ch-region').innerHTML='<div class="donut-wrap"><svg class="donut-svg" viewBox="0 0 160 160">'+circles+'</svg><div class="donut-legend">'+legend+'</div></div>';
+}
+
+function renderHIndexChart(){
+  var tiers=[{l:'H \u2265 50',min:50,max:999,c:'#1d4ed8'},{l:'H 30-49',min:30,max:49,c:'#2563eb'},{l:'H 20-29',min:20,max:29,c:'#3b82f6'},{l:'H 10-19',min:10,max:19,c:'#60a5fa'},{l:'H < 10',min:0,max:9,c:'#93c5fd'}];
+  tiers.forEach(function(t){t.v=D.filter(function(d){return d.h>=t.min&&d.h<=t.max}).length});
+  var max=Math.max.apply(null,tiers.map(function(t){return t.v}));
+  var h=tiers.map(function(t){
+    var hPct=Math.max(Math.round(t.v/max*100),5);
+    return '<div class="tier-col"><span class="tier-num">'+t.v+'</span><div class="tier-bar" style="height:'+hPct+'%;background:'+t.c+'"></div><span class="tier-label">'+t.l+'</span></div>';
+  }).join('');
+  document.getElementById('ch-hindex').innerHTML='<div class="tier-grid">'+h+'</div>';
 }
 
 init();
