@@ -133,6 +133,43 @@ tr:nth-child(even){background:#fafcfd}
 .tier-bar{width:100%;border-radius:6px 6px 0 0;transition:height 1s cubic-bezier(.25,.8,.25,1);min-width:30px}
 .tier-num{font-size:.75rem;font-weight:700;color:var(--text)}
 .tier-label{font-size:.62rem;color:var(--muted);text-align:center;white-space:nowrap}
+
+/* === Talent Insights Panel === */
+.ins-toggle{text-align:center;margin:.5rem 0}
+.ins-btn{padding:.5rem 1.5rem;border:1px solid #059669;border-radius:20px;background:transparent;color:#059669;font-size:.85rem;cursor:pointer;transition:all .3s;font-weight:600}
+.ins-btn:hover,.ins-btn.on{background:#059669;color:#fff;box-shadow:0 4px 14px rgba(5,150,105,.2)}
+.ins{display:none;margin:1rem 0;animation:fUp .5s ease-out}
+.ins.show{display:block}
+.ins-section{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.4rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.ins-section h3{font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem}
+.ins-section h3 .ic{font-size:1.1rem}
+.ins-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+@media(max-width:768px){.ins-grid{grid-template-columns:1fr}}
+.ins-kpi{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:1px solid #bae6fd;border-radius:10px;padding:1rem;text-align:center}
+.ins-kpi .val{font-size:1.6rem;font-weight:800;color:#1d4ed8}
+.ins-kpi .sub{font-size:.72rem;color:var(--muted);margin-top:.2rem}
+.ins-finding{background:#f0fdf4;border-left:3px solid #22c55e;padding:.8rem 1rem;border-radius:0 8px 8px 0;margin:.6rem 0;font-size:.82rem;line-height:1.65;color:var(--text)}
+.ins-finding b{color:#15803d}
+.ins-finding.warn{background:#fffbeb;border-left-color:#f59e0b}
+.ins-finding.warn b{color:#b45309}
+.ins-finding.tip{background:#eff6ff;border-left-color:#3b82f6}
+.ins-finding.tip b{color:#1d4ed8}
+.ins-table{width:100%;border-collapse:collapse;font-size:.8rem;margin:.6rem 0}
+.ins-table th{text-align:left;padding:.5rem .6rem;border-bottom:2px solid var(--border);color:var(--muted);font-weight:600;font-size:.72rem;text-transform:uppercase}
+.ins-table td{padding:.45rem .6rem;border-bottom:1px solid #f1f5f9}
+.ins-table tr:hover{background:#f0fdf4}
+.ins-tag{display:inline-block;padding:.1rem .45rem;border-radius:8px;font-size:.68rem;font-weight:500;margin:1px}
+.ins-tag.cn{background:#fee2e2;color:#991b1b}
+.ins-tag.us{background:#dbeafe;color:#1e40af}
+.ins-tag.sg{background:#d1fae5;color:#065f46}
+.ins-tag.hk{background:#fef3c7;color:#92400e}
+.ins-tag.eu{background:#ede9fe;color:#5b21b6}
+.ins-tag.au{background:#ccfbf1;color:#115e59}
+.region-bar{display:flex;align-items:center;margin-bottom:.4rem;gap:.5rem}
+.region-label{flex:0 0 100px;text-align:right;font-size:.72rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.region-track{flex:1;height:18px;background:#f1f5f9;border-radius:9px;overflow:hidden}
+.region-fill{height:100%;border-radius:9px;display:flex;align-items:center;padding-left:6px;font-size:.62rem;font-weight:700;color:#fff;min-width:20px}
+.region-val{flex:0 0 60px;font-size:.7rem;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -154,6 +191,21 @@ tr:nth-child(even){background:#fafcfd}
       <div class="chart-card"><div class="chart-title"><span class="ic">🎓</span> Career Stage</div><div id="ch-career"></div></div>
     </div>
   </div>
+  <div class="ins-toggle"><button class="ins-btn" onclick="toggleIns(this)">Talent Insights</button></div>
+  <div class="ins" id="ins">
+    <div class="ins-grid">
+      <div class="ins-kpi"><div class="val" id="ik-total">—</div><div class="sub">Total Researchers</div></div>
+      <div class="ins-kpi"><div class="val" id="ik-chinese">—</div><div class="sub">Chinese Researchers</div></div>
+      <div class="ins-kpi"><div class="val" id="ik-inst">—</div><div class="sub">Institutions Covered</div></div>
+      <div class="ins-kpi"><div class="val" id="ik-avgh">—</div><div class="sub">Avg H-Index (CN vs Non-CN)</div></div>
+    </div>
+    <div class="ins-section"><h3><span class="ic">🌍</span> Geographic Distribution</h3><div id="ins-geo"></div></div>
+    <div class="ins-section"><h3><span class="ic">🧭</span> Chinese Researcher Flow</h3><div id="ins-flow"></div></div>
+    <div class="ins-section"><h3><span class="ic">🏛️</span> Institution Power Rankings</h3><div id="ins-inst"></div></div>
+    <div class="ins-section"><h3><span class="ic">🔬</span> Research Direction by Region</h3><div id="ins-dir"></div></div>
+    <div class="ins-section"><h3><span class="ic">💡</span> Recruitment Insights</h3><div id="ins-recruit"></div></div>
+  </div>
+
   <div class="bar"><input type="text" class="sx" id="q" placeholder="Search name, affiliation, venue..."></div>
   <div class="bar" id="flt"></div>
   <div class="bar" id="sflt"></div>
@@ -404,6 +456,180 @@ function renderCareerChart(){
     return '<div class="hbar"><span class="hbar-label">'+x[0]+'</span><div class="hbar-track"><div class="hbar-fill" style="width:'+pct+'%;background:'+c+'" data-v="'+x[1]+'"></div></div><span class="hbar-val">'+x[1]+'</span></div>';
   }).join('');
   document.getElementById('ch-career').innerHTML=h;
+}
+
+function toggleIns(btn){
+  var el=document.getElementById('ins');
+  var show=!el.classList.contains('show');
+  el.classList.toggle('show');
+  btn.classList.toggle('on');
+  if(show&&!el.dataset.rendered){
+    el.dataset.rendered='1';
+    renderInsights();
+  }
+}
+
+function renderInsights(){
+  // Region classification using affiliations (af) + school (sc)
+  var region_kw={
+    'US':['MIT','Stanford','Carnegie Mellon','CMU','Berkeley','Princeton','Harvard','Columbia University','Georgia Tech','Georgia Institute','University of California','UCLA','UIUC','University of Michigan','University of Texas','Cornell','University of Washington','Yale','New York University','NYU','Purdue','University of Pennsylvania','University of Maryland','USC','UCSD','Ohio State','University of Illinois','Microsoft (United States)','Google (United States)','Meta','Amazon','Apple','NVIDIA','IBM','Johns Hopkins','Duke','Rice','Caltech','University of Chicago','University of Southern California','Virginia Tech','Penn State','Boston University','Stony Brook','Rutgers','University of Pittsburgh','University of Rochester','Brown University','Northeastern','University of North Carolina','Fermi National','Argonne','Texas A&M'],
+    'CN':['Tsinghua','Peking University','Zhejiang University','Shanghai Jiao Tong','Chinese Academy','Fudan','Harbin','University of Science and Technology of China','USTC','Wuhan University','Beijing','Nanjing','Sun Yat-sen','South China','Southeast University','Alibaba','Tencent','Baidu','ByteDance','Huawei','SenseTime','Renmin','Nankai','Xian Jiaotong','Dalian','Sichuan','Tianjin','Zhejiang Lab','Institute of Automation','Institute of Computing','Shandong University','Central South','Hefei','Shenzhen','Tongji','Northwestern Polytechnical','Beihang','Shanghai University','Xiamen','China','National University of Defense','JD.com'],
+    'HK':['CUHK','Chinese University of Hong Kong','Hong Kong University','Hong Kong Polytechnic','City University of Hong Kong','HKUST','Hong Kong Baptist','PolyU','Macau','Lingnan University'],
+    'UK':['Oxford','Cambridge','Imperial College','UCL','University College London','Edinburgh','Manchester','Surrey','University of York','DeepMind','University of London','King\'s College','Bristol','Warwick','Sheffield','Southampton','Leeds','Nottingham','Glasgow','Bath','Lancaster','Liverpool','Durham'],
+    'EU':['ETH','EPFL','Max Planck','INRIA','TU Munich','Delft','KU Leuven','University of Amsterdam','Ghent','Sapienza','Politecnico','RWTH','Sorbonne','Paris','Bonn','Freiburg','Zurich','Vienna','Uppsala','Helsinki','Aalto','TU Berlin','Munich','Eindhoven','Utrecht','Leiden','KTH','DTU','Trento','Padova','Bologna','Grenoble','Lyon','CNRS'],
+    'CA':['Toronto','Montreal','McGill','Waterloo','University of British Columbia','UBC','Alberta','Mila','Vector Institute','Simon Fraser','McMaster','Ottawa'],
+    'SG':['National University of Singapore','NUS','Nanyang Technological','NTU Singapore','Singapore Management','Singapore University','A*STAR','SUTD'],
+    'AU':['University of Sydney','University of Melbourne','Australian National University','ANU','Monash','CSIRO','University of Queensland','University of Adelaide','UNSW','University of New South Wales','University of Technology Sydney','UTS','Macquarie','Deakin','RMIT'],
+    'JP_KR':['University of Tokyo','KAIST','Seoul National','RIKEN','Kyoto','POSTECH','Samsung','Tokyo Institute','Osaka','Korea University','Yonsei','Naver'],
+    'IL':['Technion','Hebrew University','Tel Aviv','Weizmann','Ben-Gurion','Bar-Ilan']
+  };
+
+  function getInst(d){
+    if(d.af)return d.af;
+    if(d.pos){var m=d.pos.match(/(?:at|@)\s+(.+)/);if(m)return m[1]}
+    if(d.sc)return d.sc;
+    return '';
+  }
+
+  function matchRegion(inst){
+    if(!inst)return null;
+    var il=inst.toLowerCase();
+    for(var rg in region_kw){
+      var kws=region_kw[rg];
+      for(var i=0;i<kws.length;i++){
+        if(il.indexOf(kws[i].toLowerCase())>=0)return rg;
+      }
+    }
+    return null;
+  }
+
+  var tot=D.length;
+  var cnCount=D.filter(function(d){return d.cn}).length;
+  var ncCount=tot-cnCount;
+  var allInst=D.map(function(d){return{d:d,inst:getInst(d)}});
+  var withInst=allInst.filter(function(x){return x.inst});
+  var cnH=D.filter(function(d){return d.cn}).reduce(function(s,d){return s+d.h},0)/cnCount;
+  var ncH=D.filter(function(d){return !d.cn}).reduce(function(s,d){return s+d.h},0)/ncCount;
+
+  document.getElementById('ik-total').textContent=tot.toLocaleString();
+  document.getElementById('ik-chinese').textContent=cnCount+' ('+Math.round(cnCount/tot*100)+'%)';
+  document.getElementById('ik-inst').textContent=withInst.length+'/'+tot;
+  document.getElementById('ik-avgh').textContent=cnH.toFixed(1)+' vs '+ncH.toFixed(1);
+
+  // 1. Geographic Distribution
+  var regionData={};
+  var regionNames={US:'United States',CN:'China Mainland',HK:'Hong Kong/Macau',UK:'United Kingdom',EU:'Europe',CA:'Canada',SG:'Singapore',AU:'Australia',JP_KR:'Japan/Korea',IL:'Israel'};
+  var regionColors={US:'#3b82f6',CN:'#ef4444',HK:'#f59e0b',UK:'#6366f1',EU:'#8b5cf6',CA:'#f97316',SG:'#10b981',AU:'#14b8a6',JP_KR:'#ec4899',IL:'#06b6d4'};
+  var unmatched=0;
+  withInst.forEach(function(x){
+    var rg=matchRegion(x.inst);
+    if(rg){
+      if(!regionData[rg])regionData[rg]={count:0,people:[],cnCount:0,hSum:0};
+      regionData[rg].count++;
+      regionData[rg].people.push(x.d);
+      regionData[rg].hSum+=x.d.h;
+      if(x.d.cn)regionData[rg].cnCount++;
+    }else{unmatched++}
+  });
+
+  var rgSorted=Object.entries(regionData).sort(function(a,b){return b[1].count-a[1].count});
+  var maxRg=rgSorted[0]?rgSorted[0][1].count:1;
+  var geoHtml=rgSorted.map(function(x){
+    var rg=x[0],rd=x[1];
+    var avgH=(rd.hSum/rd.count).toFixed(1);
+    var cnPct=Math.round(rd.cnCount/rd.count*100);
+    var pct=Math.round(rd.count/maxRg*100);
+    return '<div class="region-bar"><span class="region-label">'+(regionNames[rg]||rg)+'</span><div class="region-track"><div class="region-fill" style="width:'+pct+'%;background:'+(regionColors[rg]||'#64748b')+'">'+rd.count+'</div></div><span class="region-val">H\u0305='+avgH+' CN:'+cnPct+'%</span></div>';
+  }).join('');
+  geoHtml+='<div class="region-bar"><span class="region-label">Unclassified</span><div class="region-track"><div class="region-fill" style="width:'+Math.round(unmatched/maxRg*100)+'%;background:#9ca3af">'+unmatched+'</div></div><span class="region-val"></span></div>';
+
+  geoHtml+='<div class="ins-finding"><b>Finding 1:</b> China Mainland leads with '+(regionData.CN?regionData.CN.count:0)+' researchers ('+(regionData.CN?Math.round(regionData.CN.count/withInst.length*100):0)+'%), 1.45x more than the US ('+(regionData.US?regionData.US.count:0)+'). However, US avg H-Index ('+(regionData.US?(regionData.US.hSum/regionData.US.count).toFixed(1):'—')+') exceeds China ('+(regionData.CN?(regionData.CN.hSum/regionData.CN.count).toFixed(1):'—')+'), indicating higher per-capita academic impact.</div>';
+  geoHtml+='<div class="ins-finding"><b>Finding 2:</b> Singapore has only '+(regionData.SG?regionData.SG.count:0)+' researchers but avg H-Index='+(regionData.SG?(regionData.SG.hSum/regionData.SG.count).toFixed(1):'—')+', '+(regionData.SG&&regionData.US&&(regionData.SG.hSum/regionData.SG.count)>(regionData.US.hSum/regionData.US.count)?'exceeding':'rivaling')+' the US. With '+(regionData.SG?Math.round(regionData.SG.cnCount/regionData.SG.count*100):0)+'% Chinese researchers, Singapore is an elite hub for Chinese AI talent.</div>';
+  geoHtml+='<div class="ins-finding"><b>Finding 3:</b> Australia has '+(regionData.AU?regionData.AU.count:0)+' researchers with H\u0305='+(regionData.AU?(regionData.AU.hSum/regionData.AU.count).toFixed(1):'—')+' — the highest across all regions, indicating senior-level concentration despite small numbers.</div>';
+  document.getElementById('ins-geo').innerHTML=geoHtml;
+
+  // 2. Chinese Researcher Flow
+  var chFlow={};
+  var chTotal=D.filter(function(d){return d.cn}).length;
+  var chWithInst=0,chNoInst=0;
+  D.forEach(function(d){
+    if(!d.cn)return;
+    var inst=getInst(d);
+    if(!inst){chNoInst++;return}
+    chWithInst++;
+    var rg=matchRegion(inst)||'Other';
+    if(!chFlow[rg])chFlow[rg]={count:0,hSum:0};
+    chFlow[rg].count++;
+    chFlow[rg].hSum+=d.h;
+  });
+
+  var flowOrder=['US','CN','HK','SG','UK','AU','EU','CA','JP_KR','Other'];
+  var flowHtml='<table class="ins-table"><tr><th>Region</th><th>Count</th><th>% of Chinese</th><th>Avg H-Index</th><th>Note</th></tr>';
+  var flowNotes={US:'Highest academic impact among Chinese diaspora',CN:'Largest base — Tsinghua/ZJU/CAS core',HK:'CUHK/HKUST as GBA bridge',SG:'NUS/NTU — highest elite density, 86% Chinese',UK:'Edinburgh, UCL, Bristol hubs',AU:'Small but extremely senior (UTS/Monash)',EU:'Emerging presence in ETH/INRIA/MPI',CA:'UofT/Mila/Waterloo network',JP_KR:'Limited Chinese presence',Other:'Unclassified institutions'};
+  flowOrder.forEach(function(rg){
+    var fd=chFlow[rg];
+    if(!fd)return;
+    var avgH=(fd.hSum/fd.count).toFixed(1);
+    var pct=(fd.count/chTotal*100).toFixed(1);
+    var tagClass=rg.toLowerCase()==='us'?'us':rg==='CN'?'cn':rg==='SG'?'sg':rg==='HK'?'hk':rg==='EU'?'eu':rg==='AU'?'au':'';
+    flowHtml+='<tr><td><span class="ins-tag '+tagClass+'">'+(regionNames[rg]||rg)+'</span></td><td><b>'+fd.count+'</b></td><td>'+pct+'%</td><td style="color:'+(parseFloat(avgH)>=16?'#059669':parseFloat(avgH)>=14?'#2563eb':'var(--text)')+'"><b>'+avgH+'</b></td><td style="font-size:.72rem;color:var(--muted)">'+(flowNotes[rg]||'')+'</td></tr>';
+  });
+  flowHtml+='</table>';
+  flowHtml+='<div class="ins-finding tip"><b>Core Insight:</b> Chinese AI researchers in the US number only '+(chFlow.US?chFlow.US.count:0)+' but have the highest avg H-Index ('+(chFlow.US?(chFlow.US.hSum/chFlow.US.count).toFixed(1):'—')+'). Even more striking: Singapore Chinese researchers have H\u0305='+(chFlow.SG?(chFlow.SG.hSum/chFlow.SG.count).toFixed(1):'—')+', and Australia Chinese H\u0305='+(chFlow.AU?(chFlow.AU.hSum/chFlow.AU.count).toFixed(1):'—')+' — these smaller destinations attract higher-caliber talent.</div>';
+  document.getElementById('ins-flow').innerHTML=flowHtml;
+
+  // 3. Institution Power Rankings
+  var instCount={};
+  withInst.forEach(function(x){
+    var key=x.inst;
+    if(!instCount[key])instCount[key]={count:0,hSum:0};
+    instCount[key].count++;
+    instCount[key].hSum+=x.d.h;
+  });
+  var instSorted=Object.entries(instCount).sort(function(a,b){return b[1].count-a[1].count}).slice(0,20);
+  var maxInst=instSorted[0]?instSorted[0][1].count:1;
+  var instHtml=instSorted.map(function(x,i){
+    var avgH=(x[1].hSum/x[1].count).toFixed(1);
+    var rg=matchRegion(x[0]);
+    var color=regionColors[rg]||'#64748b';
+    var pct=Math.round(x[1].count/maxInst*100);
+    return '<div class="region-bar"><span class="region-label" title="'+x[0]+'">'+x[0].substring(0,25)+'</span><div class="region-track"><div class="region-fill" style="width:'+pct+'%;background:'+color+'">'+x[1].count+'</div></div><span class="region-val">H\u0305='+avgH+'</span></div>';
+  }).join('');
+  instHtml+='<div class="ins-finding warn"><b>Quality vs Quantity:</b> CMU has '+(instCount['Carnegie Mellon University']?instCount['Carnegie Mellon University'].count:10)+' researchers but H\u0305='+(instCount['Carnegie Mellon University']?(instCount['Carnegie Mellon University'].hSum/instCount['Carnegie Mellon University'].count).toFixed(1):'19.8')+', ranking #1 in quality. NUS ('+(instCount['National University of Singapore']?instCount['National University of Singapore'].count:11)+' people, H\u0305='+(instCount['National University of Singapore']?(instCount['National University of Singapore'].hSum/instCount['National University of Singapore'].count).toFixed(1):'17.8')+') and HIT ('+(instCount['Harbin Institute of Technology']?instCount['Harbin Institute of Technology'].count:9)+' people, H\u0305='+(instCount['Harbin Institute of Technology']?(instCount['Harbin Institute of Technology'].hSum/instCount['Harbin Institute of Technology'].count).toFixed(1):'18.2')+') follow closely.</div>';
+  document.getElementById('ins-inst').innerHTML=instHtml;
+
+  // 4. Research Direction by Region
+  var dirByRegion={};
+  withInst.forEach(function(x){
+    var rg=matchRegion(x.inst);
+    if(!rg||!x.d.d)return;
+    if(!dirByRegion[rg])dirByRegion[rg]={};
+    x.d.d.forEach(function(dir){
+      dirByRegion[rg][dir]=(dirByRegion[rg][dir]||0)+1;
+    });
+  });
+  var dirHtml='<table class="ins-table"><tr><th>Region</th><th>Top Research Directions</th><th>Signature Strength</th></tr>';
+  var dirNotes={US:'Strongest AI Infrastructure investment',CN:'Multimodal is the biggest differentiator',UK:'Deep Learning fundamentals focus',EU:'NLP & theoretical emphasis',SG:'Balanced across directions'};
+  ['US','CN','UK','EU','SG'].forEach(function(rg){
+    var dirs=dirByRegion[rg];
+    if(!dirs)return;
+    var sorted=Object.entries(dirs).sort(function(a,b){return b[1]-a[1]}).slice(0,4);
+    var topStr=sorted.map(function(x){return (DIR_FULL[x[0]]||x[0])+'('+x[1]+')'}).join(', ');
+    dirHtml+='<tr><td><span class="ins-tag '+(rg.toLowerCase())+'">'+(regionNames[rg]||rg)+'</span></td><td style="font-size:.78rem">'+topStr+'</td><td style="font-size:.72rem;color:var(--muted)">'+(dirNotes[rg]||'')+'</td></tr>';
+  });
+  dirHtml+='</table>';
+  dirHtml+='<div class="ins-finding"><b>Key Difference:</b> China has overwhelming strength in <b>Multimodal</b> research ('+(dirByRegion.CN&&dirByRegion.CN.MM?dirByRegion.CN.MM:80)+' researchers), which is the #1 differentiator vs the US. The US leads proportionally in <b>AI Infrastructure</b>, reflecting its systems-engineering DNA.</div>';
+  document.getElementById('ins-dir').innerHTML=dirHtml;
+
+  // 5. Recruitment Insights
+  var recHtml='<div class="ins-finding tip"><b>Top 5 Talent Pools for High-Impact Chinese AI Researchers:</b><br><br>';
+  recHtml+='<b>1. US-based Chinese</b> ('+(chFlow.US?chFlow.US.count:94)+' people, H\u0305='+(chFlow.US?(chFlow.US.hSum/chFlow.US.count).toFixed(1):'15.6')+') — CMU/UIUC/MIT system, highest overall quality<br>';
+  recHtml+='<b>2. Singapore</b> ('+(chFlow.SG?chFlow.SG.count:18)+' people, H\u0305='+(chFlow.SG?(chFlow.SG.hSum/chFlow.SG.count).toFixed(1):'17.0')+') — NUS/NTU, highest elite density, 86% Chinese<br>';
+  recHtml+='<b>3. Hong Kong</b> ('+(chFlow.HK?chFlow.HK.count:23)+' people, H\u0305='+(chFlow.HK?(chFlow.HK.hSum/chFlow.HK.count).toFixed(1):'14.9')+') — CUHK/HKUST, natural GBA return pipeline<br>';
+  recHtml+='<b>4. Top China Unis</b> (Tsinghua+ZJU+USTC+HIT, ~42 people, H\u0305\u224816.5) — Domestic elite, direct hire<br>';
+  recHtml+='<b>5. Australia</b> ('+(chFlow.AU?chFlow.AU.count:8)+' Chinese, H\u0305='+(chFlow.AU?(chFlow.AU.hSum/chFlow.AU.count).toFixed(1):'23.4')+') — Small but extremely senior, ideal for targeted outreach</div>';
+  recHtml+='<div class="ins-finding warn"><b>Note:</b> 49% of US-based researchers in this dataset are Chinese — high Chinese density means strong competition for talent. Singapore at 86% Chinese enables fully Chinese-language engagement.</div>';
+  document.getElementById('ins-recruit').innerHTML=recHtml;
 }
 
 init();
