@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><title>Stanford & Berkeley 在读华人学生 — Final Report</title>
+<style>
+:root { --bg:#0f172a; --card:#1e293b; --accent:#06b6d4; --text:#e2e8f0; --muted:#94a3b8; --high:#10b981; --med:#f59e0b; --low:#6b7280; }
+* { box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif; background:var(--bg); color:var(--text); margin:0; padding:0; }
+header { background:linear-gradient(135deg,#1e3a8a,#7c3aed); padding:32px 24px; }
+header h1 { margin:0 0 8px 0; font-size:28px; }
+header p { margin:0; opacity:.9; font-size:14px; }
+.stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; padding:24px; max-width:1400px; margin:0 auto; }
+.stat { background:var(--card); padding:16px; border-radius:8px; text-align:center; }
+.stat .num { font-size:24px; font-weight:700; color:var(--accent); }
+.stat .lbl { font-size:12px; color:var(--muted); margin-top:4px; }
+.controls { max-width:1400px; margin:0 auto; padding:0 24px 16px; display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+input[type=text] { flex:1; min-width:200px; padding:10px 14px; background:var(--card); border:1px solid #334155; color:var(--text); border-radius:6px; font-size:14px; }
+button.filter { padding:8px 14px; background:var(--card); color:var(--text); border:1px solid #334155; border-radius:6px; cursor:pointer; font-size:13px; }
+button.filter.active { background:var(--accent); color:#000; border-color:var(--accent); }
+section { max-width:1400px; margin:0 auto; padding:8px 24px 32px; }
+section h2 { font-size:20px; margin:24px 0 16px; padding:8px 0; border-bottom:2px solid #334155; display:flex; justify-content:space-between; align-items:center; }
+.count { font-size:14px; color:var(--muted); font-weight:400; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:14px; }
+.card { background:var(--card); border-radius:8px; padding:14px; border:1px solid #334155; transition:transform .15s; }
+.card:hover { transform:translateY(-2px); border-color:var(--accent); }
+.card.multi { border-left:3px solid var(--accent); }
+.card-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.card-head h3 { margin:0; font-size:16px; }
+.badge { font-size:10px; padding:2px 8px; border-radius:10px; text-transform:uppercase; font-weight:700; }
+.b-high { background:var(--high); color:#000; }
+.b-med { background:var(--med); color:#000; }
+.b-low { background:var(--low); color:#fff; }
+.card-meta { margin-bottom:8px; }
+.src { display:inline-block; font-size:10px; padding:2px 6px; background:rgba(6,182,212,0.15); color:var(--accent); border-radius:3px; margin-right:4px; margin-bottom:2px; }
+.card-contact { display:flex; gap:8px; flex-wrap:wrap; font-size:13px; }
+.card-contact a { color:var(--text); text-decoration:none; padding:4px 8px; background:rgba(255,255,255,0.05); border-radius:4px; }
+.card-contact a:hover { background:rgba(6,182,212,0.2); }
+.li-conf { color:var(--high); margin-left:3px; font-weight:700; }
+.li-warn { color:var(--med); margin-left:3px; font-weight:700; }
+.muted { color:var(--muted); font-size:12px; }
+.role { font-size:12px; color:#a3e635; margin-bottom:6px; line-height:1.4; }
+.bs { font-size:12px; margin-bottom:6px; line-height:1.4; }
+.bs-prc { color:#fb7185; font-weight:600; }
+.bs-other { color:#94a3b8; }
+.notes { background:#1f2937; padding:14px 18px; border-left:4px solid var(--accent); border-radius:4px; margin:16px 0; font-size:13px; line-height:1.6; }
+.notes strong { color:var(--accent); }
+.hidden { display:none !important; }
+footer { text-align:center; padding:24px; color:var(--muted); font-size:12px; }
+</style></head><body>
+<header>
+  <h1>🎓 Stanford & UC Berkeley — 在读华人 CS/AI PhD 学生</h1>
+  <p>从 23 个官方教授课题组主页 + 学校目录抓取，结合 Tavily LinkedIn 搜索 + 个人主页/OpenReview 验证</p>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num">123</div><div class="lbl">总学生数</div></div>
+  <div class="stat"><div class="num">84</div><div class="lbl">Stanford</div></div>
+  <div class="stat"><div class="num">39</div><div class="lbl">Berkeley</div></div>
+  <div class="stat"><div class="num">78</div><div class="lbl">高置信度</div></div>
+  <div class="stat"><div class="num">32</div><div class="lbl">中置信度</div></div>
+  <div class="stat"><div class="num">95/123</div><div class="lbl">LinkedIn 命中</div></div>
+  <div class="stat"><div class="num">54</div><div class="lbl">LinkedIn 学校验证</div></div>
+  <div class="stat"><div class="num">41</div><div class="lbl">.edu 邮箱</div></div>
+  <div class="stat"><div class="num">26</div><div class="lbl">PRC 本科背景</div></div>
+</div>
+
+<div class="controls">
+  <input type="text" id="search" placeholder="🔍 搜索姓名 / 课题组 ...">
+  <button class="filter active" data-conf="all">全部</button>
+  <button class="filter" data-conf="high">仅高置信度</button>
+  <button class="filter" data-conf="medium">中置信度+</button>
+</div>
+
+<section>
+  <div class="notes">
+    <strong>📌 数据来源（23个）：</strong> Stanford CS Directory · Stanford NLP Group · 
+    Christopher Ré · Stefano Ermon · Percy Liang · Chelsea Finn · Dorsa Sadigh (ILIAD) · Jure Leskovec (SNAP) · 
+    Diyi Yang (SALT) · Jiajun Wu (SVL) · Lexing Ying (ICME) · Fei-Fei Li (SVL) · Tatsu Hashimoto · Shuran Song (REAL) ·
+    Berkeley M. Jordan · J. Gonzalez · M. Zaharia · S. Levine (RAIL) · J. Malik · A. Efros · BAIR · Dawn Song · Jiantao Jiao (CLIMB)<br>
+    <strong>✓ LinkedIn 标记：</strong> 绿色 ✓✓ = Browser agent 人工逐个核验；绿色 ✓ = Tavily 学校验证；橙色 ? = 仅姓名命中（需复核）<br>
+    <strong>🆕 v9 → v10 新增（共 8 人，5 位 faculty Round 2 扩展）：</strong>
+    Tatsu Hashimoto: Tianyi Zhang ·
+    Fei-Fei Li/Jiajun Wu (SVL): Raven Huang, Ruohan Zhang, Jeff Tan (CMU) ·
+    Shuran Song (REAL): Mandi Zhao (Berkeley BS), Han Zhang (清华) ·
+    Jiantao Jiao (Berkeley): Tianhao Wu (北大), Kunhe Yang (清华姚班)<br>
+    <strong>🆕 v8 → v9 新增（共 13 人，5 位 faculty 课题组扩展）：</strong>
+    Diyi Yang: Hao Zhu (清华→CMU PhD→Stanford 博后), Yanzhe Zhang (浙大→GT PhD@Stanford NLP), Chenglei Si (UMD→Stanford PhD) ·
+    Jiajun Wu: Zizhang Li (浙大), Hong-Xing Yu ·
+    Lexing Ying: Yinuo Ren (北大), Ya-Chi Chu, Haoxuan Chen (Caltech), Hongrui Chen (北大), Hongkang Ni, Nan Sheng ·
+    Dawn Song: Jiaxin Wen (清华), Changcheng Fan<br>
+    <strong>🆕 v7 → v8 新增（共 12 人，PRC 本科 → Stanford/Berkeley 博士）：</strong>
+    Stanford: Chenyi Zhang (清华), Ruili Feng (中科大), Genghan Zhang, Jiaqi Han (清华), Yu Yan (清华姚班), Yanjie Ze (上交) ·
+    Berkeley: Haoyi Niu (清华自动化), Yuezhou Hu (清华), Haozhe Jiang, Kaiwen Hu (北大计), Yufan Cao (清华电子), Haocheng Xi (清华姚班)<br>
+    <strong>⚠️ 已剔除（共 18 人）：</strong> faculty (Tengyu Ma, Diyi Yang) · 已毕业 (Yutong Bai → JHU, Boyi Li → NVIDIA, Yaodong Yu → OpenAI, Baihe Huang, Tianrui Wei, Mayee Chen → Engram, Toru Lin → Amazon, Tony Zhao → Sunday Robotics CEO, Hanchen Wang Cambridge postdoc, Tianjun Zhang → Meta, Lianmin Zheng → Meta, Tiffany Ding → MIT postdoc, Linda Cai → Berkeley postdoc, Alan Cheng, Fang Wu) · 休学 (Anne Ouyang → Standard Kernel) · 误匹配 (Jiale Yan, Yurong Chen Haas alum, Kevin Lin NCSU bio)<br>
+    <strong>📊 置信度评分：</strong> 多源出现 +2 / .edu 邮箱 +3 / .edu 主页 +2 / LinkedIn 学校验证 +2
+  </div>
+
+  <h2>🌲 Stanford University <span class="count">84 students</span></h2>
+  <div class="grid">
+<div class="card" data-name="abe hou" data-conf="high">
+  <div class="card-head">
+    <h3>Abe Hou</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:abehou@cs.stanford.edu">📧 abehou@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/bohanhou" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="boyang deng" data-conf="high">
+  <div class="card-head">
+    <h3>Boyang Deng</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:bydeng@cs.stanford.edu">📧 bydeng@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/boyang-deng-728978113" target="_blank">💼 LinkedIn<span class="li-warn">?</span></a></div>
+</div>
+
+<div class="card" data-name="chen geng" data-conf="high">
+  <div class="card-head">
+    <h3>Chen Geng</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:gengchen@cs.stanford.edu">📧 gengchen@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/chen-geng-aa8a09125" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="chenglei si" data-conf="high">
+  <div class="card-head">
+    <h3>Chenglei Si</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Diyi_Yang</span></div>
+  
+  <div class="bs bs-other">🎓 BS: University of Maryland</div>
+  <div class="card-contact"><a class="link-hp" href="https://noviscl.github.io/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="chenyi zhang" data-conf="high">
+  <div class="card-head">
+    <h3>Chenyi Zhang</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">PRC_search</span></div>
+  <div class="role">🎓 first-year PhD CS at Stanford</div>
+  <div class="bs bs-prc">🎓 BS: Tsinghua University</div>
+  <div class="card-contact"><a class="link-hp" href="https://qfarm.stanford.edu/people/chenyi-zhang" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="ed chen" data-conf="high">
+  <div class="card-head">
+    <h3>Ed Chen</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:edjchen@cs.stanford.edu">📧 edjchen@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/edward-chen-958a7bb4" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="emily jin" data-conf="high">
+  <div class="card-head">
+    <h3>Emily Jin</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:emilyjin@cs.stanford.edu">📧 emilyjin@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/emily-jin-020" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="genghan zhang" data-conf="high">
+  <div class="card-head">
+    <h3>Genghan Zhang</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">PRC_search</span></div>
+  <div class="role">🎓 CS PhD at Stanford, advised by Kunle Olukotun</div>
+  
+  <div class="card-contact"><a class="link-hp" href="https://zhang677.github.io/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="han zhang" data-conf="high">
+  <div class="card-head">
+    <h3>Han Zhang</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Shuran_Song</span></div>
+  
+  <div class="bs bs-prc">🎓 BS: Tsinghua University</div>
+  <div class="card-contact"><a class="link-hp" href="https://doublehan07.github.io/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="hansheng chen" data-conf="high">
+  <div class="card-head">
+    <h3>Hansheng Chen</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  <div class="role">🎓 CS PhD student</div>
+  
+  <div class="card-contact"><a class="link-email" href="mailto:hshchen@cs.stanford.edu">📧 hshchen@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/hansheng-chen-330a67182" target="_blank">💼 LinkedIn<span class="li-conf">✓✓</span></a></div>
+</div>
+
+<div class="card" data-name="hao zhu" data-conf="high">
+  <div class="card-head">
+    <h3>Hao Zhu</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Diyi_Yang</span></div>
+  
+  <div class="bs bs-prc">🎓 BS: Tsinghua University</div>
+  <div class="card-contact"><a class="link-hp" href="https://hao.computer/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="haodi he" data-conf="high">
+  <div class="card-head">
+    <h3>Haodi He</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:hardyhe@cs.stanford.edu">📧 hardyhe@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/haodi-he-288088233" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="haoxuan chen" data-conf="high">
+  <div class="card-head">
+    <h3>Haoxuan Chen</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Lexing_Ying</span></div>
+  
+  <div class="bs bs-other">🎓 BS: Caltech</div>
+  <div class="card-contact"><a class="link-email" href="mailto:haoxuanc@stanford.edu">📧 haoxuanc@stanford.edu</a> <a class="link-hp" href="https://haoxuanstevec00.github.io/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card multi" data-name="hengyuan hu" data-conf="high">
+  <div class="card-head">
+    <h3>Hengyuan Hu</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span> <span class="src">Sadigh_ILIAD</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:hengyuan@cs.stanford.edu">📧 hengyuan@cs.stanford.edu</a> <a class="link-hp" href="https://hengyuanhu.com/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/hengyuan-hu-8963b313b" target="_blank">💼 LinkedIn<span class="li-warn">?</span></a></div>
+</div>
+
+<div class="card" data-name="hong-xing yu" data-conf="high">
+  <div class="card-head">
+    <h3>Hong-Xing Yu</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Jiajun_Wu</span></div>
+  
+  
+  <div class="card-contact"><a class="link-hp" href="https://kovenyu.com/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="hongkang ni" data-conf="high">
+  <div class="card-head">
+    <h3>Hongkang Ni</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Lexing_Ying</span></div>
+  
+  
+  <div class="card-contact"><a class="link-hp" href="https://www.linkedin.com/in/hongkang-ni-686a73300" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/hongkang-ni-686a73300" target="_blank">💼 LinkedIn</a></div>
+</div>
+
+<div class="card" data-name="hongrui chen" data-conf="high">
+  <div class="card-head">
+    <h3>Hongrui Chen</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Lexing_Ying</span></div>
+  
+  <div class="bs bs-prc">🎓 BS: Peking University</div>
+  <div class="card-contact"><a class="link-email" href="mailto:hongrui@stanford.edu">📧 hongrui@stanford.edu</a> <a class="link-hp" href="https://mathematics.stanford.edu/people/lexing-ying" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="irena gao" data-conf="high">
+  <div class="card-head">
+    <h3>Irena Gao</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:irena@cs.stanford.edu">📧 irena@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/irena-gao" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="james dong" data-conf="high">
+  <div class="card-head">
+    <h3>James Dong</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:dongj@cs.stanford.edu">📧 dongj@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/xdong" target="_blank">💼 LinkedIn<span class="li-warn">?</span></a></div>
+</div>
+
+<div class="card" data-name="jeff tan" data-conf="high">
+  <div class="card-head">
+    <h3>Jeff Tan</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Jiajun_Wu</span></div>
+  
+  <div class="bs bs-other">🎓 BS: Carnegie Mellon University</div>
+  <div class="card-contact"><a class="link-hp" href="https://jefftan969.github.io/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="jensen gao" data-conf="high">
+  <div class="card-head">
+    <h3>Jensen Gao</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:jenseng@cs.stanford.edu">📧 jenseng@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/jensen-gao-038024162" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="jiaqi han" data-conf="high">
+  <div class="card-head">
+    <h3>Jiaqi Han</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">PRC_search</span></div>
+  <div class="role">🎓 third-year PhD at Stanford CS</div>
+  <div class="bs bs-prc">🎓 BS: Tsinghua University</div>
+  <div class="card-contact"><a class="link-hp" href="https://hanjq17.github.io/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card multi" data-name="jing huang" data-conf="high">
+  <div class="card-head">
+    <h3>Jing Huang</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span> <span class="src">NLP_Group</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:hij@cs.stanford.edu">📧 hij@cs.stanford.edu</a> <a class="link-hp" href="https://explanare.github.io" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="joy he" data-conf="high">
+  <div class="card-head">
+    <h3>Joy He</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:heyueya@cs.stanford.edu">📧 heyueya@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/joyqhe" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card multi" data-name="kaiyue wen" data-conf="high">
+  <div class="card-head">
+    <h3>Kaiyue Wen</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">NLP_Group</span> <span class="src">Percy_Liang</span></div>
+  <div class="role">🎓 2nd year CS PhD at Stanford (advised by Tengyu Ma &amp; Percy Liang)</div>
+  <div class="bs bs-prc">🎓 BS: Tsinghua</div>
+  <div class="card-contact"><a class="link-hp" href="https://whenwen.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://cn.linkedin.com/in/kaiyue-wen-a3a336192" target="_blank">💼 LinkedIn<span class="li-conf">✓✓</span></a></div>
+</div>
+
+<div class="card multi" data-name="ken liu" data-conf="high">
+  <div class="card-head">
+    <h3>Ken Liu</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">NLP_Group</span> <span class="src">Percy_Liang</span></div>
+  
+  
+  <div class="card-contact"><a class="link-hp" href="https://ai.stanford.edu/~kzliu" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/kenziyuliu" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card multi" data-name="liangyu chen" data-conf="high">
+  <div class="card-head">
+    <h3>Liangyu Chen</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span> <span class="src">NLP_Group</span></div>
+  <div class="role">🎓 CS PhD Student at Stanford</div>
+  
+  <div class="card-contact"><a class="link-email" href="mailto:liangyu.chen@cs.stanford.edu">📧 liangyu.chen@cs.stanford.edu</a> <a class="link-hp" href="https://cliangyu.com" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/leonlc" target="_blank">💼 LinkedIn<span class="li-conf">✓✓</span></a></div>
+</div>
+
+<div class="card" data-name="lily chen" data-conf="high">
+  <div class="card-head">
+    <h3>Lily Chen</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  <div class="role">🎓 Student at Stanford University</div>
+  
+  <div class="card-contact"><a class="link-email" href="mailto:lily.chen@cs.stanford.edu">📧 lily.chen@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/lily-chen-609612365" target="_blank">💼 LinkedIn<span class="li-conf">✓✓</span></a></div>
+</div>
+
+<div class="card" data-name="lucia zheng" data-conf="high">
+  <div class="card-head">
+    <h3>Lucia Zheng</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">NLP_Group</span></div>
+  <div class="role">🎓 JD/CS PhD student at Stanford</div>
+  
+  <div class="card-contact"><a class="link-hp" href="https://zlucia.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/zlucia/" target="_blank">💼 LinkedIn<span class="li-conf">✓✓</span></a></div>
+</div>
+
+<div class="card" data-name="mandi zhao" data-conf="high">
+  <div class="card-head">
+    <h3>Mandi Zhao</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Shuran_Song</span></div>
+  
+  <div class="bs bs-other">🎓 BS: UC Berkeley</div>
+  <div class="card-contact"><a class="link-hp" href="https://mandizhao.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/mandi-zhao" target="_blank">💼 LinkedIn</a></div>
+</div>
+
+<div class="card" data-name="marina zhang" data-conf="high">
+  <div class="card-head">
+    <h3>Marina Zhang</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Percy_Liang</span></div>
+  <div class="role">🎓 CS PhD Student @ Stanford (started Sept 2024)</div>
+  
+  <div class="card-contact"><a class="link-hp" href="https://marinazhang.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/marina-zhang" target="_blank">💼 LinkedIn<span class="li-conf">✓✓</span></a></div>
+</div>
+
+<div class="card" data-name="matthew ding" data-conf="high">
+  <div class="card-head">
+    <h3>Matthew Ding</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:mcding@cs.stanford.edu">📧 mcding@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/matthew-ding" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="max du" data-conf="high">
+  <div class="card-head">
+    <h3>Max Du</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:maxjdu@cs.stanford.edu">📧 maxjdu@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/maximilian-du" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="myra cheng" data-conf="high">
+  <div class="card-head">
+    <h3>Myra Cheng</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:myra@cs.stanford.edu">📧 myra@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/myracheng027" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="nan sheng" data-conf="high">
+  <div class="card-head">
+    <h3>Nan Sheng</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Lexing_Ying</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:xxshen@stanford.edu">📧 xxshen@stanford.edu</a> <a class="link-hp" href="https://profiles.stanford.edu/browse/school-of-engineering/programs-centers-and-institutes/institute-for-computational-and-mathematical-engineering-icme" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card multi" data-name="perry dong" data-conf="high">
+  <div class="card-head">
+    <h3>Perry Dong</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span> <span class="src">Sadigh_ILIAD</span></div>
+  <div class="role">🎓 PhD Student at Stanford (ILIAD lab)</div>
+  
+  <div class="card-contact"><a class="link-email" href="mailto:perryd@cs.stanford.edu">📧 perryd@cs.stanford.edu</a> <a class="link-hp" href="https://dblp.org/pid/323/8972.html" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/perry-dong-865ba336a" target="_blank">💼 LinkedIn<span class="li-conf">✓✓</span></a></div>
+</div>
+
+<div class="card" data-name="qiantan hong" data-conf="high">
+  <div class="card-head">
+    <h3>Qiantan Hong</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  <div class="role">🎓 PhD Student in CS at Stanford (admitted Autumn 2021)</div>
+  
+  <div class="card-contact"><a class="link-email" href="mailto:qthong@cs.stanford.edu">📧 qthong@cs.stanford.edu</a></div>
+</div>
+
+<div class="card multi" data-name="raven huang" data-conf="high">
+  <div class="card-head">
+    <h3>Raven Huang</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Fei-Fei_Li_SVL</span> <span class="src">Faculty_Jiajun_Wu</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:ravenh@stanford.edu">📧 ravenh@stanford.edu</a></div>
+</div>
+
+<div class="card" data-name="ruili feng" data-conf="high">
+  <div class="card-head">
+    <h3>Ruili Feng</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">PRC_search</span></div>
+  <div class="role">🎓 first-year PhD CS at Stanford</div>
+  <div class="bs bs-prc">🎓 BS: USTC</div>
+  <div class="card-contact"><a class="link-hp" href="https://ruili33.github.io/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="ruiquan gao" data-conf="high">
+  <div class="card-head">
+    <h3>Ruiquan Gao</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:ruiquan@cs.stanford.edu">📧 ruiquan@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/ruiquan-gao-276648254" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card multi" data-name="ruohan zhang" data-conf="high">
+  <div class="card-head">
+    <h3>Ruohan Zhang</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Fei-Fei_Li_SVL</span> <span class="src">Faculty_Jiajun_Wu</span></div>
+  
+  
+  <div class="card-contact"><a class="link-hp" href="https://ruohanzhang.com/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/ruohan-zhang-2219b782" target="_blank">💼 LinkedIn</a></div>
+</div>
+
+<div class="card" data-name="shicheng liu" data-conf="high">
+  <div class="card-head">
+    <h3>Shicheng Liu</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">NLP_Group</span></div>
+  <div class="role">🎓 4th year PhD @ Stanford NLP Group (2022-2026)</div>
+  
+  <div class="card-contact"><a class="link-hp" href="https://george1459.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/shicheng-liu-84690a338" target="_blank">💼 LinkedIn<span class="li-conf">✓✓</span></a></div>
+</div>
+
+<div class="card" data-name="shirley wu" data-conf="high">
+  <div class="card-head">
+    <h3>Shirley Wu</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Leskovec_SNAP</span></div>
+  
+  <div class="bs bs-prc">🎓 BS: USTC</div>
+  <div class="card-contact"><a class="link-hp" href="https://cs.stanford.edu/~shirwu/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/shirley-wu-bb1751199" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="simon guo" data-conf="high">
+  <div class="card-head">
+    <h3>Simon Guo</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  <div class="role">🎓 CS PhD Student @ Stanford (Scaling Intelligence Lab)</div>
+  
+  <div class="card-contact"><a class="link-email" href="mailto:zirui.guo@cs.stanford.edu">📧 zirui.guo@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/simonguozirui" target="_blank">💼 LinkedIn<span class="li-conf">✓✓</span></a></div>
+</div>
+
+<div class="card" data-name="sirui chen" data-conf="high">
+  <div class="card-head">
+    <h3>Sirui Chen</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  <div class="role">🎓 3rd year CS PhD at Stanford (advised by Karen Liu)</div>
+  
+  <div class="card-contact"><a class="link-email" href="mailto:ericcsr@cs.stanford.edu">📧 ericcsr@cs.stanford.edu</a> <a class="link-li" href="https://hk.linkedin.com/in/sirui-eric-chen-071b241a9" target="_blank">💼 LinkedIn<span class="li-conf">✓✓</span></a></div>
+</div>
+
+<div class="card multi" data-name="steven cao" data-conf="high">
+  <div class="card-head">
+    <h3>Steven Cao</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span> <span class="src">NLP_Group</span> <span class="src">Percy_Liang</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:shcao@cs.stanford.edu">📧 shcao@cs.stanford.edu</a> <a class="link-hp" href="http://stevenxcao.github.io" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card multi" data-name="steven feng" data-conf="high">
+  <div class="card-head">
+    <h3>Steven Feng</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span> <span class="src">NLP_Group</span></div>
+  <div class="role">🎓 Stanford CS PhD Student (AI/ML, 4th year)</div>
+  
+  <div class="card-contact"><a class="link-email" href="mailto:syfeng@cs.stanford.edu">📧 syfeng@cs.stanford.edu</a> <a class="link-hp" href="https://styfeng.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/steven-feng" target="_blank">💼 LinkedIn<span class="li-conf">✓✓</span></a></div>
+</div>
+
+<div class="card multi" data-name="tian gao" data-conf="high">
+  <div class="card-head">
+    <h3>Tian Gao</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span> <span class="src">Sadigh_ILIAD</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:tiangao@cs.stanford.edu">📧 tiangao@cs.stanford.edu</a> <a class="link-hp" href="https://skybhh19.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/tian-gao-333418249" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card multi" data-name="tianlang chen" data-conf="high">
+  <div class="card-head">
+    <h3>Tianlang Chen</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span> <span class="src">Leskovec_SNAP</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:tianlang.chen@cs.stanford.edu">📧 tianlang.chen@cs.stanford.edu</a> <a class="link-hp" href="https://snap.stanford.edu/people.html" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/tianlang-chen-78b796250" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="tianyi zhang" data-conf="high">
+  <div class="card-head">
+    <h3>Tianyi Zhang</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Tatsu_Hashimoto</span></div>
+  
+  
+  <div class="card-contact"><a class="link-hp" href="https://tiiiger.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/tianyi-zhang-843a64120" target="_blank">💼 LinkedIn</a></div>
+</div>
+
+<div class="card" data-name="tianyu hua" data-conf="high">
+  <div class="card-head">
+    <h3>Tianyu Hua</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:tyhua@cs.stanford.edu">📧 tyhua@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/tianyu-hua-876865180" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="wenlong huang" data-conf="high">
+  <div class="card-head">
+    <h3>Wenlong Huang</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:wenlongh@cs.stanford.edu">📧 wenlongh@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/wenlongh" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="ya-chi chu" data-conf="high">
+  <div class="card-head">
+    <h3>Ya-Chi Chu</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Lexing_Ying</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:ycchu97@stanford.edu">📧 ycchu97@stanford.edu</a> <a class="link-hp" href="https://mathematics.stanford.edu/people/ya-chi-chu" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/yachichu" target="_blank">💼 LinkedIn</a></div>
+</div>
+
+<div class="card" data-name="yanjie ze" data-conf="high">
+  <div class="card-head">
+    <h3>Yanjie Ze</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">PRC_search</span></div>
+  <div class="role">🎓 PhD at Stanford CS, advised by Jiajun Wu and C. Karen Liu</div>
+  <div class="bs bs-prc">🎓 BS: Shanghai Jiao Tong University</div>
+  <div class="card-contact"><a class="link-hp" href="https://yanjieze.com/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="yanzhe zhang" data-conf="high">
+  <div class="card-head">
+    <h3>Yanzhe Zhang</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Diyi_Yang</span></div>
+  
+  <div class="bs bs-prc">🎓 BS: Zhejiang University</div>
+  <div class="card-contact"><a class="link-hp" href="https://stevenyzzhang.github.io/website/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="yijia shao" data-conf="high">
+  <div class="card-head">
+    <h3>Yijia Shao</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">NLP_Group</span></div>
+  
+  <div class="bs bs-prc">🎓 BS: Peking University (PKU)</div>
+  <div class="card-contact"><a class="link-hp" href="https://cs.stanford.edu/~shaoyj/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/shaoyj" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="yinuo ren" data-conf="high">
+  <div class="card-head">
+    <h3>Yinuo Ren</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Lexing_Ying</span></div>
+  
+  <div class="bs bs-prc">🎓 BS: Peking University</div>
+  <div class="card-contact"><a class="link-email" href="mailto:yinuoren@stanford.edu">📧 yinuoren@stanford.edu</a> <a class="link-hp" href="https://yinuoren.github.io/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="yu he" data-conf="high">
+  <div class="card-head">
+    <h3>Yu He</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:heyu@cs.stanford.edu">📧 heyu@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/yu-he-64237098" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="yu yan" data-conf="high">
+  <div class="card-head">
+    <h3>Yu Yan</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">PRC_search</span></div>
+  <div class="role">🎓 PhD student in CS at Stanford</div>
+  <div class="bs bs-prc">🎓 BS: Tsinghua University (Yao Class)</div>
+  <div class="card-contact"><span class="muted">—</span></div>
+</div>
+
+<div class="card multi" data-name="yucheng jiang" data-conf="high">
+  <div class="card-head">
+    <h3>Yucheng Jiang</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span> <span class="src">NLP_Group</span></div>
+  <div class="role">🎓 PhD student @ Stanford NLP</div>
+  
+  <div class="card-contact"><a class="link-email" href="mailto:yucheng.jiang@cs.stanford.edu">📧 yucheng.jiang@cs.stanford.edu</a> <a class="link-hp" href="https://cs.stanford.edu/~yuchengj/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/yucheng-jiang-a1bab8189" target="_blank">💼 LinkedIn<span class="li-conf">✓✓</span></a></div>
+</div>
+
+<div class="card" data-name="yue gao" data-conf="high">
+  <div class="card-head">
+    <h3>Yue Gao</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:yuegao@cs.stanford.edu">📧 yuegao@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/yuegaocs" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="yunfan jiang" data-conf="high">
+  <div class="card-head">
+    <h3>Yunfan Jiang</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:yunfanj@cs.stanford.edu">📧 yunfanj@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/yunfanjiang" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="ziwei chen" data-conf="high">
+  <div class="card-head">
+    <h3>Ziwei Chen</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:ziwei.chen@cs.stanford.edu">📧 ziwei.chen@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/ziwei-chen1" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="ziyu chen" data-conf="high">
+  <div class="card-head">
+    <h3>Ziyu Chen</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">CS_Directory</span></div>
+  <div class="role">🎓 First-year CS PhD at Stanford (advised by Jiajun Wu)</div>
+  
+  <div class="card-contact"><a class="link-email" href="mailto:ziyu.chen@cs.stanford.edu">📧 ziyu.chen@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/chen-ziyu" target="_blank">💼 LinkedIn<span class="li-conf">✓✓</span></a></div>
+</div>
+
+<div class="card" data-name="zizhang li" data-conf="high">
+  <div class="card-head">
+    <h3>Zizhang Li</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Jiajun_Wu</span></div>
+  
+  <div class="bs bs-prc">🎓 BS: Zhejiang University</div>
+  <div class="card-contact"><a class="link-hp" href="https://kyleleey.github.io/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="amber xie" data-conf="medium">
+  <div class="card-head">
+    <h3>Amber Xie</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Sadigh_ILIAD</span></div>
+  
+  
+  <div class="card-contact"><a class="link-hp" href="https://amberxie88.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/amber-xie-20ab8a118" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="john yang" data-conf="medium">
+  <div class="card-head">
+    <h3>John Yang</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">NLP_Group</span></div>
+  
+  
+  <div class="card-contact"><a class="link-hp" href="https://john-b-yang.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/jyang20" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="kexin huang" data-conf="medium">
+  <div class="card-head">
+    <h3>Kexin Huang</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Leskovec_SNAP</span></div>
+  
+  
+  <div class="card-contact"><a class="link-hp" href="https://www.kexinhuang.com" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/kexinhuang" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="kuan pang" data-conf="medium">
+  <div class="card-head">
+    <h3>Kuan Pang</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Leskovec_SNAP</span></div>
+  
+  
+  <div class="card-contact"><a class="link-hp" href="https://kuan-pang.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/kuan-pang-840447181" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="michael li" data-conf="medium">
+  <div class="card-head">
+    <h3>Michael Li</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">NLP_Group</span></div>
+  
+  
+  <div class="card-contact"><a class="link-hp" href="https://michaelyli.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/michael-li-03a1885" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="minkai xu" data-conf="medium">
+  <div class="card-head">
+    <h3>Minkai Xu</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Leskovec_SNAP</span></div>
+  
+  <div class="bs bs-prc">🎓 BS: Tsinghua</div>
+  <div class="card-contact"><a class="link-hp" href="https://minkaixu.com/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/minkaixu" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="qian huang" data-conf="medium">
+  <div class="card-head">
+    <h3>Qian Huang</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">NLP_Group</span></div>
+  
+  
+  <div class="card-contact"><a class="link-hp" href="https://q-hwang.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/qian-huang-b20315149" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="wanjia zhao" data-conf="medium">
+  <div class="card-head">
+    <h3>Wanjia Zhao</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">NLP_Group</span></div>
+  
+  <div class="bs bs-prc">🎓 BS: Zhejiang Univ</div>
+  <div class="card-contact"><a class="link-hp" href="https://wanjiazhao1203.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/wanjia-zhao-299b13281" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="zhengxuan wu" data-conf="medium">
+  <div class="card-head">
+    <h3>Zhengxuan Wu</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">NLP_Group</span></div>
+  
+  
+  <div class="card-contact"><a class="link-hp" href="http://zen-wu.social/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/wuzhengx" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="zitong yang" data-conf="medium">
+  <div class="card-head">
+    <h3>Zitong Yang</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">NLP_Group</span></div>
+  
+  
+  <div class="card-contact"><a class="link-hp" href="https://zitongyang.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/zitongyang" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="cyrus (zikai) zhou" data-conf="low">
+  <div class="card-head">
+    <h3>Cyrus (Zikai) Zhou</h3>
+    <span class="badge b-low">low</span>
+  </div>
+  <div class="card-meta"><span class="src">NLP_Group</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/cyruszhou/" target="_blank">💼 LinkedIn</a></div>
+</div>
+
+<div class="card" data-name="eric chen" data-conf="low">
+  <div class="card-head">
+    <h3>Eric Chen</h3>
+    <span class="badge b-low">low</span>
+  </div>
+  <div class="card-meta"><span class="src">Leskovec_SNAP</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/eric-c-a8b3302a5/" target="_blank">💼 LinkedIn</a></div>
+</div>
+
+<div class="card" data-name="fengyu li" data-conf="low">
+  <div class="card-head">
+    <h3>Fengyu Li</h3>
+    <span class="badge b-low">low</span>
+  </div>
+  <div class="card-meta"><span class="src">Leskovec_SNAP</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/fengyuli/" target="_blank">💼 LinkedIn</a></div>
+</div>
+
+<div class="card" data-name="harper hua" data-conf="low">
+  <div class="card-head">
+    <h3>Harper Hua</h3>
+    <span class="badge b-low">low</span>
+  </div>
+  <div class="card-meta"><span class="src">Leskovec_SNAP</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/harper-hua-83b209295/" target="_blank">💼 LinkedIn</a></div>
+</div>
+
+<div class="card" data-name="jonathan yang" data-conf="low">
+  <div class="card-head">
+    <h3>Jonathan Yang</h3>
+    <span class="badge b-low">low</span>
+  </div>
+  <div class="card-meta"><span class="src">Sadigh_ILIAD</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/jonathan-yang-7b5542124" target="_blank">💼 LinkedIn</a></div>
+</div>
+
+<div class="card" data-name="qinan yu" data-conf="low">
+  <div class="card-head">
+    <h3>Qinan Yu</h3>
+    <span class="badge b-low">low</span>
+  </div>
+  <div class="card-meta"><span class="src">NLP_Group</span></div>
+  
+  
+  <div class="card-contact"><a class="link-hp" href="https://yuqinan.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/qinan-yu-9b50471b2" target="_blank">💼 LinkedIn<span class="li-warn">?</span></a></div>
+</div>
+
+<div class="card" data-name="qizheng zhang" data-conf="low">
+  <div class="card-head">
+    <h3>Qizheng Zhang</h3>
+    <span class="badge b-low">low</span>
+  </div>
+  <div class="card-meta"><span class="src">Verified</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/qizheng-alex-zhang" target="_blank">💼 LinkedIn</a></div>
+</div>
+
+<div class="card" data-name="rae wong" data-conf="low">
+  <div class="card-head">
+    <h3>Rae Wong</h3>
+    <span class="badge b-low">low</span>
+  </div>
+  <div class="card-meta"><span class="src">Leskovec_SNAP</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/raeyy/" target="_blank">💼 LinkedIn</a></div>
+</div>
+
+<div class="card" data-name="serena zhang" data-conf="low">
+  <div class="card-head">
+    <h3>Serena Zhang</h3>
+    <span class="badge b-low">low</span>
+  </div>
+  <div class="card-meta"><span class="src">Leskovec_SNAP</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/serena-zhang-72020/" target="_blank">💼 LinkedIn</a></div>
+</div></div>
+
+  <h2>🐻 UC Berkeley <span class="count">39 students</span></h2>
+  <div class="grid">
+<div class="card" data-name="andria xu" data-conf="high">
+  <div class="card-head">
+    <h3>Andria Xu</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Levine_RAIL</span></div>
+  <div class="role">🎓 Undergraduate CS at UC Berkeley (2023-2027)</div>
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/andriaxu" target="_blank">💼 LinkedIn<span class="li-conf">✓✓</span></a></div>
+</div>
+
+<div class="card" data-name="haocheng xi" data-conf="high">
+  <div class="card-head">
+    <h3>Haocheng Xi</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">PRC_search</span></div>
+  <div class="role">🎓 second-year PhD at UC Berkeley BAIR, advised by Kurt Keutzer</div>
+  <div class="bs bs-prc">🎓 BS: Tsinghua University (Yao Class)</div>
+  <div class="card-contact"><a class="link-hp" href="https://haochengxi.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/haocheng-xi-412511323" target="_blank">💼 LinkedIn<span class="li-conf">✓✓</span></a></div>
+</div>
+
+<div class="card" data-name="haoyi niu" data-conf="high">
+  <div class="card-head">
+    <h3>Haoyi Niu</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">PRC_search</span></div>
+  <div class="role">🎓 PhD at BAIR, advised by Koushil Sreenath</div>
+  <div class="bs bs-prc">🎓 BS: Tsinghua University (Automation)</div>
+  <div class="card-contact"><a class="link-hp" href="https://t6-thu.github.io/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="haozhe jiang" data-conf="high">
+  <div class="card-head">
+    <h3>Haozhe Jiang</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">PRC_search</span></div>
+  <div class="role">🎓 PhD CS at Berkeley, started 2024</div>
+  
+  <div class="card-contact"><a class="link-hp" href="https://astro-eric.github.io/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="jiaxin wen" data-conf="high">
+  <div class="card-head">
+    <h3>Jiaxin Wen</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Dawn_Song</span></div>
+  
+  <div class="bs bs-prc">🎓 BS: Tsinghua University</div>
+  <div class="card-contact"><a class="link-hp" href="https://jiaxin-wen.github.io/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="jiayi pan" data-conf="high">
+  <div class="card-head">
+    <h3>Jiayi Pan</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Verified</span></div>
+  <div class="role">🎓 Student at UC Berkeley</div>
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/jiayi-pan-88964132a" target="_blank">💼 LinkedIn<span class="li-conf">✓✓</span></a></div>
+</div>
+
+<div class="card" data-name="kaiwen hu" data-conf="high">
+  <div class="card-head">
+    <h3>Kaiwen Hu</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">PRC_search</span></div>
+  <div class="role">🎓 first-year PhD at UC Berkeley EECS, advised by Somayeh Sojoudi</div>
+  <div class="bs bs-prc">🎓 BS: Peking University</div>
+  <div class="card-contact"><a class="link-hp" href="https://kaotty.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/kaiwen-hu-a90727386" target="_blank">💼 LinkedIn<span class="li-conf">✓✓</span></a></div>
+</div>
+
+<div class="card multi" data-name="kunhe yang" data-conf="high">
+  <div class="card-head">
+    <h3>Kunhe Yang</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Jiantao_Jiao_collab</span> <span class="src">Faculty_Nika_Haghtalab</span></div>
+  
+  <div class="bs bs-prc">🎓 BS: Tsinghua University</div>
+  <div class="card-contact"><a class="link-hp" href="https://simons.berkeley.edu/people/kunhe-yang" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="tianhao wu" data-conf="high">
+  <div class="card-head">
+    <h3>Tianhao Wu</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Jiantao_Jiao</span></div>
+  
+  <div class="bs bs-prc">🎓 BS: Peking University</div>
+  <div class="card-contact"><a class="link-hp" href="https://thwu1.github.io/tianhaowu/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="william chen" data-conf="high">
+  <div class="card-head">
+    <h3>William Chen</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Levine_RAIL</span></div>
+  <div class="role">🎓 CS PhD in AI @ UC Berkeley</div>
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/william-chen-a3956516b" target="_blank">💼 LinkedIn<span class="li-conf">✓✓</span></a></div>
+</div>
+
+<div class="card" data-name="xuelin yang" data-conf="high">
+  <div class="card-head">
+    <h3>Xuelin Yang</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Michael_Jordan_Lab</span></div>
+  <div class="role">🎓 PhD Student in Statistics at UC Berkeley</div>
+  
+  <div class="card-contact"><span class="muted">—</span></div>
+</div>
+
+<div class="card" data-name="yuezhou hu" data-conf="high">
+  <div class="card-head">
+    <h3>Yuezhou Hu</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">PRC_search</span></div>
+  <div class="role">🎓 PhD at BAIR, advised by Kurt Keutzer</div>
+  <div class="bs bs-prc">🎓 BS: Tsinghua University</div>
+  <div class="card-contact"><a class="link-hp" href="https://yuezhouhu.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/yuezhou-hu-101a57353" target="_blank">💼 LinkedIn<span class="li-conf">✓✓</span></a></div>
+</div>
+
+<div class="card" data-name="yufan cao" data-conf="high">
+  <div class="card-head">
+    <h3>Yufan Cao</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">PRC_search</span></div>
+  <div class="role">🎓 PhD student at UC Berkeley EECS, Fall 2023</div>
+  <div class="bs bs-prc">🎓 BS: Tsinghua University (EE)</div>
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/yufan-cao-649868276" target="_blank">💼 LinkedIn<span class="li-conf">✓✓</span></a></div>
+</div>
+
+<div class="card" data-name="andy peng" data-conf="medium">
+  <div class="card-head">
+    <h3>Andy Peng</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Levine_RAIL</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/andypeng05" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="bill zheng" data-conf="medium">
+  <div class="card-head">
+    <h3>Bill Zheng</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Levine_RAIL</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/bill-zheng-5207991ab" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="celine tan" data-conf="medium">
+  <div class="card-head">
+    <h3>Celine Tan</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Levine_RAIL</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/celine-tan-a2b5a3202" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="changcheng fan" data-conf="medium">
+  <div class="card-head">
+    <h3>Changcheng Fan</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Dawn_Song</span></div>
+  
+  
+  <div class="card-contact"><a class="link-hp" href="https://cltc.berkeley.edu/cal-cybersecurity-research-fellows/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="claire chen" data-conf="medium">
+  <div class="card-head">
+    <h3>Claire Chen</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Levine_RAIL</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/clairehchen" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="dacheng li" data-conf="medium">
+  <div class="card-head">
+    <h3>Dacheng Li</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Joseph_Gonzalez_Lab</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/dacheng-li-216402130" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="derek guo" data-conf="medium">
+  <div class="card-head">
+    <h3>Derek Guo</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Levine_RAIL</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/derek-guo-30440b171" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="haoran geng" data-conf="medium">
+  <div class="card-head">
+    <h3>Haoran Geng</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Malik_Lab</span></div>
+  
+  <div class="bs bs-prc">🎓 BS: Peking University (PKU)</div>
+  <div class="card-contact"><a class="link-hp" href="https://geng-haoran.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/haoran-geng-422778238" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="jane wu" data-conf="medium">
+  <div class="card-head">
+    <h3>Jane Wu</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Malik_Lab</span></div>
+  
+  
+  <div class="card-contact"><a class="link-hp" href="https://janehwu.github.io/ " target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/mayawu" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="jennifer zhao" data-conf="medium">
+  <div class="card-head">
+    <h3>Jennifer Zhao</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Levine_RAIL</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/jnzhao3" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="joey hong" data-conf="medium">
+  <div class="card-head">
+    <h3>Joey Hong</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Levine_RAIL</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/joeyhong" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="preston fu" data-conf="medium">
+  <div class="card-head">
+    <h3>Preston Fu</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Levine_RAIL</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/preston-fu" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="qiyang li" data-conf="medium">
+  <div class="card-head">
+    <h3>Qiyang Li</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Levine_RAIL</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/qiyang-li-673240101" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="raymond tsao" data-conf="medium">
+  <div class="card-head">
+    <h3>Raymond Tsao</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Levine_RAIL</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/r112514" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="ryan cheng" data-conf="medium">
+  <div class="card-head">
+    <h3>Ryan Cheng</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Levine_RAIL</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/ryanyicheng" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="shiyi cao" data-conf="medium">
+  <div class="card-head">
+    <h3>Shiyi Cao</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Joseph_Gonzalez_Lab</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/shiyi-cao-b63b4213a/en" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="tianyu guo" data-conf="medium">
+  <div class="card-head">
+    <h3>Tianyu Guo</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Michael_Jordan_Lab</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/tianyu-guo-246330235" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="timothy gao" data-conf="medium">
+  <div class="card-head">
+    <h3>Timothy Gao</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Levine_RAIL</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/timothygao8710" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="wenjie ma" data-conf="medium">
+  <div class="card-head">
+    <h3>Wenjie Ma</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Matei_Zaharia_Lab</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/wenjie-ma-5b9248268" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="yichuan wang" data-conf="medium">
+  <div class="card-head">
+    <h3>Yichuan Wang</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Matei_Zaharia_Lab</span></div>
+  
+  <div class="bs bs-prc">🎓 BS: Tsinghua University</div>
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/yichuan-wang-7518b4225" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="yifei zhou" data-conf="medium">
+  <div class="card-head">
+    <h3>Yifei Zhou</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Levine_RAIL</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/yifei-zhou-57aa9b222" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="zhiyuan paul zhou" data-conf="medium">
+  <div class="card-head">
+    <h3>Zhiyuan Paul Zhou</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">Levine_RAIL</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/zhiyuan-paul-zhou" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
+</div>
+
+<div class="card" data-name="charles xu" data-conf="low">
+  <div class="card-head">
+    <h3>Charles Xu</h3>
+    <span class="badge b-low">low</span>
+  </div>
+  <div class="card-meta"><span class="src">Levine_RAIL</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/charles-xu-84a3b915" target="_blank">💼 LinkedIn<span class="li-warn">?</span></a></div>
+</div>
+
+<div class="card" data-name="isabella yu" data-conf="low">
+  <div class="card-head">
+    <h3>Isabella Yu</h3>
+    <span class="badge b-low">low</span>
+  </div>
+  <div class="card-meta"><span class="src">Efros_Lab</span></div>
+  
+  
+  <div class="card-contact"><a class="link-hp" href="https://yukaryote.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/isabella-yu-297212a3" target="_blank">💼 LinkedIn<span class="li-warn">?</span></a></div>
+</div>
+
+<div class="card" data-name="mian wu" data-conf="low">
+  <div class="card-head">
+    <h3>Mian Wu</h3>
+    <span class="badge b-low">low</span>
+  </div>
+  <div class="card-meta"><span class="src">Levine_RAIL</span></div>
+  
+  
+  <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/mian-wu-65264024b" target="_blank">💼 LinkedIn<span class="li-warn">?</span></a></div>
+</div>
+
+<div class="card" data-name="renhao wang" data-conf="low">
+  <div class="card-head">
+    <h3>Renhao Wang</h3>
+    <span class="badge b-low">low</span>
+  </div>
+  <div class="card-meta"><span class="src">Efros_Lab</span></div>
+  
+  
+  <div class="card-contact"><a class="link-hp" href="https://renwang435.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://uk.linkedin.com/in/renhao-wang-b57901b4/en" target="_blank">💼 LinkedIn<span class="li-warn">?</span></a></div>
+</div></div>
+</section>
+
+<footer>Generated 2026-06-15 · 123 students from 23 official sources · Browser-agent + Tavily + Homepage/OpenReview verification</footer>
+
+<script>
+const search = document.getElementById('search');
+const cards = document.querySelectorAll('.card');
+const filters = document.querySelectorAll('button.filter');
+let activeConf = 'all';
+
+function applyFilter() {
+  const q = search.value.toLowerCase().trim();
+  cards.forEach(c => {
+    const txt = c.textContent.toLowerCase();
+    const conf = c.dataset.conf;
+    let show = (q === '' || txt.includes(q));
+    if (activeConf === 'high' && conf !== 'high') show = false;
+    if (activeConf === 'medium' && conf === 'low') show = false;
+    c.classList.toggle('hidden', !show);
+  });
+}
+
+search.addEventListener('input', applyFilter);
+filters.forEach(b => b.addEventListener('click', () => {
+  filters.forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  activeConf = b.dataset.conf;
+  applyFilter();
+}));
+</script>
+</body></html>
