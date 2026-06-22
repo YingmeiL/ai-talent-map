@@ -16,6 +16,10 @@ header p { margin:0; opacity:.9; font-size:14px; }
 input[type=text] { flex:1; min-width:200px; padding:10px 14px; background:var(--card); border:1px solid #334155; color:var(--text); border-radius:6px; font-size:14px; }
 button.filter { padding:8px 14px; background:var(--card); color:var(--text); border:1px solid #334155; border-radius:6px; cursor:pointer; font-size:13px; }
 button.filter.active { background:var(--accent); color:#000; border-color:var(--accent); }
+button.dept-filter { padding:8px 14px; background:var(--card); color:var(--text); border:1px solid #334155; border-radius:6px; cursor:pointer; font-size:13px; }
+button.dept-filter.active { background:#6366f1; color:#fff; border-color:#6366f1; }
+h3 { font-size:16px; color:var(--muted); margin:16px 0 10px; }
+.dept-section { margin-bottom:32px; }
 section { max-width:1400px; margin:0 auto; padding:8px 24px 32px; }
 section h2 { font-size:20px; margin:24px 0 16px; padding:8px 0; border-bottom:2px solid #334155; display:flex; justify-content:space-between; align-items:center; }
 .count { font-size:14px; color:var(--muted); font-weight:400; }
@@ -47,20 +51,19 @@ section h2 { font-size:20px; margin:24px 0 16px; padding:8px 0; border-bottom:2p
 footer { text-align:center; padding:24px; color:var(--muted); font-size:12px; }
 </style></head><body>
 <header>
-  <h1>🎓 Stanford & UC Berkeley — 在读华人 CS/AI PhD 学生</h1>
-  <p>从 23 个官方教授课题组主页 + 学校目录抓取，结合 Tavily LinkedIn 搜索 + 个人主页/OpenReview 验证</p>
+  <h1>🎓 Stanford & UC Berkeley — 在读华人 CS/Math/Physics PhD 学生</h1>
+  <p>从 26 个官方教授课题组主页 + 学校目录抓取，结合 Tavily LinkedIn 搜索 + 个人主页/OpenReview 验证</p>
 </header>
 
 <div class="stats">
-  <div class="stat"><div class="num">139</div><div class="lbl">总学生数</div></div>
-  <div class="stat"><div class="num">84</div><div class="lbl">Stanford</div></div>
-  <div class="stat"><div class="num">55</div><div class="lbl">Berkeley</div></div>
-  <div class="stat"><div class="num">91</div><div class="lbl">高置信度</div></div>
-  <div class="stat"><div class="num">35</div><div class="lbl">中置信度</div></div>
-  <div class="stat"><div class="num">107/139</div><div class="lbl">LinkedIn 命中</div></div>
-  <div class="stat"><div class="num">54</div><div class="lbl">LinkedIn 学校验证</div></div>
-  <div class="stat"><div class="num">44</div><div class="lbl">.edu 邮箱</div></div>
-  <div class="stat"><div class="num">30</div><div class="lbl">PRC 本科背景</div></div>
+  <div class="stat"><div class="num">173</div><div class="lbl">总学生数</div></div>
+  <div class="stat"><div class="num">137</div><div class="lbl">💻 CS</div></div>
+  <div class="stat"><div class="num">34</div><div class="lbl">📐 Math</div></div>
+  <div class="stat"><div class="num">2</div><div class="lbl">⚛️ Physics</div></div>
+  <div class="stat"><div class="num">104</div><div class="lbl">Stanford</div></div>
+  <div class="stat"><div class="num">69</div><div class="lbl">Berkeley</div></div>
+  <div class="stat"><div class="num">95</div><div class="lbl">高置信度</div></div>
+  <div class="stat"><div class="num">34</div><div class="lbl">PRC 本科背景</div></div>
 </div>
 
 <div class="controls">
@@ -68,15 +71,25 @@ footer { text-align:center; padding:24px; color:var(--muted); font-size:12px; }
   <button class="filter active" data-conf="all">全部</button>
   <button class="filter" data-conf="high">仅高置信度</button>
   <button class="filter" data-conf="medium">中置信度+</button>
+  <span style="margin-left:12px;color:var(--muted)">|</span>
+  <button class="dept-filter active" data-dept="all">全部学科</button>
+  <button class="dept-filter" data-dept="CS">💻 计算机 CS</button>
+  <button class="dept-filter" data-dept="Math">📐 数学 Math</button>
+  <button class="dept-filter" data-dept="Physics">⚛️ 物理 Physics</button>
 </div>
 
 <section>
   <div class="notes">
-    <strong>📌 数据来源（24个）：</strong> Stanford CS Directory · Stanford NLP Group · 
+    <strong>📌 数据来源（26个）：</strong> Stanford CS Directory · Stanford NLP Group · Stanford Math · Stanford Applied Physics · Shen Lab (ARPES) ·
     Christopher Ré · Stefano Ermon · Percy Liang · Chelsea Finn · Dorsa Sadigh (ILIAD) · Jure Leskovec (SNAP) · 
     Diyi Yang (SALT) · Jiajun Wu (SVL) · Lexing Ying (ICME) · Fei-Fei Li (SVL) · Tatsu Hashimoto · Shuran Song (REAL) ·
-    Berkeley M. Jordan · J. Gonzalez · M. Zaharia · S. Levine (RAIL) · J. Malik · A. Efros · BAIR · Dawn Song · Jiantao Jiao (CLIMB) · <strong>Ion Stoica (Sky Lab)</strong><br>
+    Berkeley M. Jordan · J. Gonzalez · M. Zaharia · S. Levine (RAIL) · J. Malik · A. Efros · BAIR · Dawn Song · Jiantao Jiao (CLIMB) · <strong>Ion Stoica (Sky Lab)</strong> · <strong>Berkeley Math</strong><br>
     <strong>✓ LinkedIn 标记：</strong> 绿色 ✓✓ = Browser agent 人工逐个核验；绿色 ✓ = Tavily 学校验证；橙色 ? = 仅姓名命中（需复核）<br>
+    <strong>🆕 v11 → v12 新增（共 34 人，Math + Physics 学科扩展）：</strong>
+    Stanford Math: Shurui Liu (北大数学), Yizhen Chen, Zehan Hu, Anqi/Xinyu/Zhihan/Zhiqi Li, Jiahao Niu, Qianhe Qin, Yuefeng Song, Dinghan Wang, Zihao Wang, Haotian Xue, Hongjian/Yingzi Yang, Andy Yin, Zhenyuan/Zhuo Zhang ·
+    Stanford Physics: Dongyu Liu (北大), Bo Liu (中科大) ·
+    Berkeley Postdoc: Yiping Ma (清华姚班) ·
+    Berkeley Math: Zechen Bian, Zherui Chen, Rongyi Dai, Hanson Hao, Kaiying Hou, Haoen/Shilun Li, Zuo Lin, Yiping Miao, Peisheng Yu, Xiangru Zeng, Jason Zhao, Keshu Zhou<br>
     <strong>🆕 v10 → v11 新增（共 16 人，Sky Computing Lab 专项扩展 — Ion Stoica + Joseph Gonzalez）：</strong>
     PRC本科: Yilong Zhao (上交→Ion Stoica), Yiwei Hou (清华→BAIR+Sky), Hanfei Yu 余涵非 (上交→Postdoc), Jintao Zhang 张棋番 (西电→清华PhD 访问) ·
     华人博士: Sijun Tan 谭嗣俊 (UVA→Raluca Ada Popa), Hanchen Li 李翰宸 (UChicago→Stoica+Gonzalez), Ziming Mao (Yale→Stoica+Shenker), Huanzhi Mao (Gonzalez+Stoica), Shu Liu (UW-Madison→Stoica), Charlie Ruan (Cornell→Stoica), Shangyin Tan (Purdue→Cheung+Sen), Zirui Wang (UCSD→Darrell+Gonzalez), Jiaxiang Yu (Cheung) ·
@@ -98,7 +111,9 @@ footer { text-align:center; padding:24px; color:var(--muted); font-size:12px; }
     <strong>📊 置信度评分：</strong> 多源出现 +2 / .edu 邮箱 +3 / .edu 主页 +2 / LinkedIn 学校验证 +2
   </div>
 
-  <h2>🌲 Stanford University <span class="count">84 students</span></h2>
+  <div class="dept-section" data-dept="CS">
+  <h2 style="color:#60a5fa;border-bottom:2px solid #60a5fa;padding-bottom:8px;margin-top:32px;">💻 计算机科学 / Computer Science <span class="count">137 students</span></h2>
+  <h3>🌲 Stanford <span class="count">82</span></h3>
   <div class="grid">
 <div class="card" data-name="abe hou" data-conf="high">
   <div class="card-head">
@@ -274,17 +289,6 @@ footer { text-align:center; padding:24px; color:var(--muted); font-size:12px; }
   
   
   <div class="card-contact"><a class="link-hp" href="https://www.linkedin.com/in/hongkang-ni-686a73300" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/hongkang-ni-686a73300" target="_blank">💼 LinkedIn</a></div>
-</div>
-
-<div class="card" data-name="hongrui chen" data-conf="high">
-  <div class="card-head">
-    <h3>Hongrui Chen</h3>
-    <span class="badge b-high">high</span>
-  </div>
-  <div class="card-meta"><span class="src">Faculty_Lexing_Ying</span></div>
-  
-  <div class="bs bs-prc">🎓 BS: Peking University</div>
-  <div class="card-contact"><a class="link-email" href="mailto:hongrui@stanford.edu">📧 hongrui@stanford.edu</a> <a class="link-hp" href="https://mathematics.stanford.edu/people/lexing-ying" target="_blank">🌐 Homepage</a></div>
 </div>
 
 <div class="card" data-name="irena gao" data-conf="high">
@@ -672,17 +676,6 @@ footer { text-align:center; padding:24px; color:var(--muted); font-size:12px; }
   <div class="card-contact"><a class="link-email" href="mailto:wenlongh@cs.stanford.edu">📧 wenlongh@cs.stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/wenlongh" target="_blank">💼 LinkedIn<span class="li-conf">✓</span></a></div>
 </div>
 
-<div class="card" data-name="ya-chi chu" data-conf="high">
-  <div class="card-head">
-    <h3>Ya-Chi Chu</h3>
-    <span class="badge b-high">high</span>
-  </div>
-  <div class="card-meta"><span class="src">Faculty_Lexing_Ying</span></div>
-  
-  
-  <div class="card-contact"><a class="link-email" href="mailto:ycchu97@stanford.edu">📧 ycchu97@stanford.edu</a> <a class="link-hp" href="https://mathematics.stanford.edu/people/ya-chi-chu" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/yachichu" target="_blank">💼 LinkedIn</a></div>
-</div>
-
 <div class="card" data-name="yanjie ze" data-conf="high">
   <div class="card-head">
     <h3>Yanjie Ze</h3>
@@ -1023,8 +1016,7 @@ footer { text-align:center; padding:24px; color:var(--muted); font-size:12px; }
   
   <div class="card-contact"><a class="link-li" href="https://www.linkedin.com/in/serena-zhang-72020/" target="_blank">💼 LinkedIn</a></div>
 </div></div>
-
-  <h2>🐻 UC Berkeley <span class="count">55 students</span></h2>
+  <h3>🐻 Berkeley <span class="count">55</span></h3>
   <div class="grid">
 <div class="card" data-name="andria xu" data-conf="high">
   <div class="card-head">
@@ -1630,15 +1622,427 @@ footer { text-align:center; padding:24px; color:var(--muted); font-size:12px; }
   
   <div class="card-contact"><a class="link-hp" href="https://renwang435.github.io/" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://uk.linkedin.com/in/renhao-wang-b57901b4/en" target="_blank">💼 LinkedIn<span class="li-warn">?</span></a></div>
 </div></div>
+  </div>
+
+  <div class="dept-section" data-dept="Math">
+  <h2 style="color:#f472b6;border-bottom:2px solid #f472b6;padding-bottom:8px;margin-top:32px;">📐 数学 / Mathematics <span class="count">34 students</span></h2>
+  <h3>🌲 Stanford <span class="count">20</span></h3>
+  <div class="grid">
+<div class="card" data-name="hongrui chen" data-conf="high">
+  <div class="card-head">
+    <h3>Hongrui Chen</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Lexing_Ying</span></div>
+  
+  <div class="bs bs-prc">🎓 BS: Peking University</div>
+  <div class="card-contact"><a class="link-email" href="mailto:hongrui@stanford.edu">📧 hongrui@stanford.edu</a> <a class="link-hp" href="https://mathematics.stanford.edu/people/lexing-ying" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="shurui liu" data-conf="high">
+  <div class="card-head">
+    <h3>Shurui Liu</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">mathematics.stanford.edu/people/graduate-students</span></div>
+  
+  <div class="bs bs-prc">🎓 BS: Peking University</div>
+  <div class="card-contact"><a class="link-email" href="mailto:srliu@stanford.edu">📧 srliu@stanford.edu</a> <a class="link-li" href="https://www.linkedin.com/in/shurui-liu-5161042a3" target="_blank">💼 LinkedIn</a></div>
+</div>
+
+<div class="card" data-name="ya-chi chu" data-conf="high">
+  <div class="card-head">
+    <h3>Ya-Chi Chu</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">Faculty_Lexing_Ying</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:ycchu97@stanford.edu">📧 ycchu97@stanford.edu</a> <a class="link-hp" href="https://mathematics.stanford.edu/people/ya-chi-chu" target="_blank">🌐 Homepage</a> <a class="link-li" href="https://www.linkedin.com/in/yachichu" target="_blank">💼 LinkedIn</a></div>
+</div>
+
+<div class="card" data-name="andy yin" data-conf="medium">
+  <div class="card-head">
+    <h3>Andy Yin</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">mathematics.stanford.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:andyyin@stanford.edu">📧 andyyin@stanford.edu</a></div>
+</div>
+
+<div class="card" data-name="anqi li" data-conf="medium">
+  <div class="card-head">
+    <h3>Anqi Li</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">mathematics.stanford.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:aqli@stanford.edu">📧 aqli@stanford.edu</a></div>
+</div>
+
+<div class="card multi" data-name="dinghan wang" data-conf="medium">
+  <div class="card-head">
+    <h3>Dinghan Wang</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">mathematics.stanford.edu/people/graduate-students</span> <span class="src">vpge.stanford.edu/fellowships-funding/vpge-fellowships/all-2025-fellows</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:dinghan@stanford.edu">📧 dinghan@stanford.edu</a></div>
+</div>
+
+<div class="card" data-name="haotian xue" data-conf="medium">
+  <div class="card-head">
+    <h3>Haotian Xue</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">mathematics.stanford.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:chuanmig@stanford.edu">📧 chuanmig@stanford.edu</a></div>
+</div>
+
+<div class="card" data-name="hongjian yang" data-conf="medium">
+  <div class="card-head">
+    <h3>Hongjian Yang</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">mathematics.stanford.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:yhj@stanford.edu">📧 yhj@stanford.edu</a></div>
+</div>
+
+<div class="card" data-name="jiahao niu" data-conf="medium">
+  <div class="card-head">
+    <h3>Jiahao Niu</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">mathematics.stanford.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:jhniu@stanford.edu">📧 jhniu@stanford.edu</a></div>
+</div>
+
+<div class="card" data-name="qianhe qin" data-conf="medium">
+  <div class="card-head">
+    <h3>Qianhe Qin</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">mathematics.stanford.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:qqhe@stanford.edu">📧 qqhe@stanford.edu</a></div>
+</div>
+
+<div class="card" data-name="xinyu li" data-conf="medium">
+  <div class="card-head">
+    <h3>Xinyu Li</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">mathematics.stanford.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:lxy34@stanford.edu">📧 lxy34@stanford.edu</a></div>
+</div>
+
+<div class="card multi" data-name="yingzi yang" data-conf="medium">
+  <div class="card-head">
+    <h3>Yingzi Yang</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">mathematics.stanford.edu/people/graduate-students</span> <span class="src">profiles.stanford.edu/daniel-bump</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:yyingzi@stanford.edu">📧 yyingzi@stanford.edu</a></div>
+</div>
+
+<div class="card" data-name="yizhen chen" data-conf="medium">
+  <div class="card-head">
+    <h3>Yizhen Chen</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">mathematics.stanford.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:chenyzh@stanford.edu">📧 chenyzh@stanford.edu</a></div>
+</div>
+
+<div class="card" data-name="yuefeng song" data-conf="medium">
+  <div class="card-head">
+    <h3>Yuefeng Song</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">mathematics.stanford.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:songyf@stanford.edu">📧 songyf@stanford.edu</a></div>
+</div>
+
+<div class="card" data-name="zehan hu" data-conf="medium">
+  <div class="card-head">
+    <h3>Zehan Hu</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">mathematics.stanford.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:zehanhu@stanford.edu">📧 zehanhu@stanford.edu</a></div>
+</div>
+
+<div class="card" data-name="zhenyuan zhang" data-conf="medium">
+  <div class="card-head">
+    <h3>Zhenyuan Zhang</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">mathematics.stanford.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:zzy@stanford.edu">📧 zzy@stanford.edu</a></div>
+</div>
+
+<div class="card" data-name="zhihan li" data-conf="medium">
+  <div class="card-head">
+    <h3>Zhihan Li</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">mathematics.stanford.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:zhli21@stanford.edu">📧 zhli21@stanford.edu</a></div>
+</div>
+
+<div class="card" data-name="zhiqi li" data-conf="medium">
+  <div class="card-head">
+    <h3>Zhiqi Li</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">mathematics.stanford.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:zhiqi.li@stanford.edu">📧 zhiqi.li@stanford.edu</a></div>
+</div>
+
+<div class="card" data-name="zhuo zhang" data-conf="medium">
+  <div class="card-head">
+    <h3>Zhuo Zhang</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">mathematics.stanford.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:zhuozh@stanford.edu">📧 zhuozh@stanford.edu</a></div>
+</div>
+
+<div class="card" data-name="zihao wang" data-conf="medium">
+  <div class="card-head">
+    <h3>Zihao Wang</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">mathematics.stanford.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:zihaow@stanford.edu">📧 zihaow@stanford.edu</a></div>
+</div></div>
+  <h3>🐻 Berkeley <span class="count">14</span></h3>
+  <div class="grid">
+<div class="card multi" data-name="yiping ma" data-conf="high">
+  <div class="card-head">
+    <h3>Yiping Ma</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">sky.cs.berkeley.edu/people</span> <span class="src">multipartycomputation.com/tpmpc-2024</span></div>
+  
+  <div class="bs bs-prc">🎓 BS: Tsinghua University (Yao Class)</div>
+  <div class="card-contact"><span class="muted">—</span></div>
+</div>
+
+<div class="card multi" data-name="hanson hao" data-conf="medium">
+  <div class="card-head">
+    <h3>Hanson Hao</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">math.berkeley.edu/people/graduate-students</span> <span class="src">math.berkeley.edu/~ytang/CV.pdf</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:hhao@berkeley.edu">📧 hhao@berkeley.edu</a></div>
+</div>
+
+<div class="card" data-name="haoen li" data-conf="medium">
+  <div class="card-head">
+    <h3>Haoen Li</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">math.berkeley.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:haoen2021@berkeley.edu">📧 haoen2021@berkeley.edu</a> <a class="link-hp" href="https://math.berkeley.edu/~haoen2021/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="jason zhao" data-conf="medium">
+  <div class="card-head">
+    <h3>Jason Zhao</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">math.berkeley.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:zhao.j@berkeley.edu">📧 zhao.j@berkeley.edu</a> <a class="link-hp" href="https://math.berkeley.edu/~jzhao/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="kaiying hou" data-conf="medium">
+  <div class="card-head">
+    <h3>Kaiying Hou</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">math.berkeley.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:kaiying@berkeley.edu">📧 kaiying@berkeley.edu</a></div>
+</div>
+
+<div class="card" data-name="keshu zhou" data-conf="medium">
+  <div class="card-head">
+    <h3>Keshu Zhou</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">math.berkeley.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:keshu_zhou@berkeley.edu">📧 keshu_zhou@berkeley.edu</a> <a class="link-hp" href="https://sites.google.com/view/kszhou" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="peisheng yu" data-conf="medium">
+  <div class="card-head">
+    <h3>Peisheng Yu</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">math.berkeley.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:peishengyu@berkeley.edu">📧 peishengyu@berkeley.edu</a> <a class="link-hp" href="https://sites.google.com/view/peisheng-yu/home" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="rongyi dai" data-conf="medium">
+  <div class="card-head">
+    <h3>Rongyi Dai</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">math.berkeley.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:amy_dai@berkeley.edu">📧 amy_dai@berkeley.edu</a> <a class="link-hp" href="https://sites.google.com/berkeley.edu/amy-dai/" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="shilun li" data-conf="medium">
+  <div class="card-head">
+    <h3>Shilun Li</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">math.berkeley.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:shilun@berkeley.edu">📧 shilun@berkeley.edu</a> <a class="link-hp" href="https://shilun-allan-li.github.io/index.html" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="xiangru zeng" data-conf="medium">
+  <div class="card-head">
+    <h3>Xiangru Zeng</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">math.berkeley.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:xiangru_zeng@berkeley.edu">📧 xiangru_zeng@berkeley.edu</a></div>
+</div>
+
+<div class="card" data-name="yiping miao" data-conf="medium">
+  <div class="card-head">
+    <h3>Yiping Miao</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">math.berkeley.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:pingping@berkeley.edu">📧 pingping@berkeley.edu</a></div>
+</div>
+
+<div class="card" data-name="zechen bian" data-conf="medium">
+  <div class="card-head">
+    <h3>Zechen Bian</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">math.berkeley.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:zechenbian@berkeley.edu">📧 zechenbian@berkeley.edu</a></div>
+</div>
+
+<div class="card" data-name="zherui chen" data-conf="medium">
+  <div class="card-head">
+    <h3>Zherui Chen</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">math.berkeley.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:chenzherui007@berkeley.edu">📧 chenzherui007@berkeley.edu</a> <a class="link-hp" href="https://scholar.google.com/citations?user=n7OWpGsAAAAJ" target="_blank">🌐 Homepage</a></div>
+</div>
+
+<div class="card" data-name="zuo lin" data-conf="medium">
+  <div class="card-head">
+    <h3>Zuo Lin</h3>
+    <span class="badge b-med">medium</span>
+  </div>
+  <div class="card-meta"><span class="src">math.berkeley.edu/people/graduate-students</span></div>
+  
+  
+  <div class="card-contact"><a class="link-email" href="mailto:zuo_lin@berkeley.edu">📧 zuo_lin@berkeley.edu</a></div>
+</div></div>
+  </div>
+
+  <div class="dept-section" data-dept="Physics">
+  <h2 style="color:#34d399;border-bottom:2px solid #34d399;padding-bottom:8px;margin-top:32px;">⚛️ 物理 / Physics <span class="count">2 students</span></h2>
+  <h3>🌲 Stanford <span class="count">2</span></h3>
+  <div class="grid">
+<div class="card" data-name="bo liu" data-conf="high">
+  <div class="card-head">
+    <h3>Bo Liu</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">arpes.stanford.edu/our-people/graduate-students</span></div>
+  
+  <div class="bs bs-prc">🎓 BS: University of Science and Technology of China (USTC)</div>
+  <div class="card-contact"><span class="muted">—</span></div>
+</div>
+
+<div class="card" data-name="dongyu liu" data-conf="high">
+  <div class="card-head">
+    <h3>Dongyu Liu</h3>
+    <span class="badge b-high">high</span>
+  </div>
+  <div class="card-meta"><span class="src">arpes.stanford.edu/our-people/graduate-students</span></div>
+  
+  <div class="bs bs-prc">🎓 BS: Peking University</div>
+  <div class="card-contact"><span class="muted">—</span></div>
+</div></div>
+  <h3>🐻 Berkeley <span class="count">0</span></h3>
+  <div class="grid"></div>
+  </div>
 </section>
 
-<footer>Generated 2026-06-16 · 139 students from 24 official sources · Browser-agent + Tavily + Homepage/OpenReview verification</footer>
+<footer>Generated 2026-06-16 · 173 students from 26 official sources · Browser-agent + Tavily + Homepage/OpenReview verification</footer>
 
 <script>
 const search = document.getElementById('search');
 const cards = document.querySelectorAll('.card');
 const filters = document.querySelectorAll('button.filter');
+const deptFilters = document.querySelectorAll('button.dept-filter');
 let activeConf = 'all';
+let activeDept = 'all';
 
 function applyFilter() {
   const q = search.value.toLowerCase().trim();
@@ -1650,6 +2054,12 @@ function applyFilter() {
     if (activeConf === 'medium' && conf === 'low') show = false;
     c.classList.toggle('hidden', !show);
   });
+  // Filter dept sections
+  document.querySelectorAll('.dept-section').forEach(sec => {
+    const dept = sec.dataset.dept;
+    let show = (activeDept === 'all' || dept === activeDept);
+    sec.style.display = show ? '' : 'none';
+  });
 }
 
 search.addEventListener('input', applyFilter);
@@ -1657,6 +2067,12 @@ filters.forEach(b => b.addEventListener('click', () => {
   filters.forEach(x => x.classList.remove('active'));
   b.classList.add('active');
   activeConf = b.dataset.conf;
+  applyFilter();
+}));
+deptFilters.forEach(b => b.addEventListener('click', () => {
+  deptFilters.forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  activeDept = b.dataset.dept;
   applyFilter();
 }));
 </script>
